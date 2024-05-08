@@ -12,7 +12,6 @@ import androidx.activity.addCallback
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.omkar.chatapp.ui.signin.signin.AuthViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
@@ -20,6 +19,7 @@ import com.omkar.chatapp.LauncherViewModel
 import com.omkar.chatapp.R
 import com.omkar.chatapp.databinding.FragmentSignupBinding
 import com.omkar.chatapp.ui.signin.signin.AuthRepository
+import com.omkar.chatapp.ui.signin.signin.AuthViewModel
 import com.omkar.chatapp.ui.signin.signin.AuthViewModelFactory
 import com.omkar.chatapp.utils.BaseFragment
 import com.omkar.chatapp.utils.FirebaseEvent
@@ -70,12 +70,11 @@ class SignupFragment : BaseFragment() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             findNavController().navigateUp()
         }
-
     }
 
     private fun initView() {
 
-        cxt?.let {context ->
+        cxt?.let { context ->
             val repository = AuthRepository()
             val viewModelFactory = AuthViewModelFactory(repository)
             authViewModel = ViewModelProvider(this, viewModelFactory)[AuthViewModel::class.java]
@@ -97,7 +96,7 @@ class SignupFragment : BaseFragment() {
 
     private fun getViewModelData() {
 
-        cxt?.let {context ->
+        cxt?.let { context ->
             launcherViewModel.getInternetStatus().observe(viewLifecycleOwner) { status ->
                 status?.let { isInternetAvailable ->
 
@@ -125,7 +124,16 @@ class SignupFragment : BaseFragment() {
                         if (user != null) {
                             // Handle successful sign-up, and use user if needed
                             timberLog(mTag, "getViewModelData: ${result.user}")
+
+
                             result.user.let {
+                                val user = UserFirestore(
+                                    uid = it.uid,
+                                    email = it.email,
+                                    displayName = it.displayName,
+                                    profileImageUrl = it.photoUrl?.toString()
+                                )
+                                authViewModel.addUserToFirestore(user)
                                 setBooleanData(context, IS_LOGIN, true)
                                 setStringData(context, USER_ID, user.uid)
                                 setStringData(context, USER_EMAIL, user.email)
@@ -140,8 +148,14 @@ class SignupFragment : BaseFragment() {
                     is SignUpResult.Failure -> {
                         // Handle sign-up failure
                         val exception = result.exception
-                        Toast.makeText(context, "Sign-up failed: ${exception?.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "Sign-up failed: ${exception?.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
+
+                    else -> {}
                 }
             }
 
@@ -238,8 +252,12 @@ class SignupFragment : BaseFragment() {
                         b.emailEditText.text.toString(),
                         b.passwordEditText.text.toString()
                     )
-                } else{
-                    showCustomAlertDialog(context, R.string.not_connected_to_internet, R.drawable.ic_server_connection1) {}
+                } else {
+                    showCustomAlertDialog(
+                        context,
+                        R.string.not_connected_to_internet,
+                        R.drawable.ic_server_connection1
+                    ) {}
                 }
             }
         }

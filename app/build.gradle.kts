@@ -76,6 +76,8 @@ dependencies {
 
     //Logger provides better readability for log messages, especially for JSON content or large amounts of data
     implementation ("com.orhanobut:logger:2.2.0")
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
+
 
 //    implementation ("com.google.mlkit:barcode-scanning:16.0.3")
 //    val camerax_version = "1.0.0-beta10"

@@ -48,5 +48,7 @@
     <string name="dummy_time">2 min ago</string>
     <string name="search">Search</string>
     <string name="dashboard">Dashboard</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="status">Status</string>
 
 </resources>

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.omkar.chatapp.ui.signin.signup.SignUpResult
 import com.google.firebase.auth.AuthResult
+import com.omkar.chatapp.ui.signin.signup.UserFirestore
 import com.omkar.chatapp.utils.timberLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -58,6 +59,10 @@ class AuthViewModel(
         repository.signUp(email, password) { result ->
             _signUpResult.value = result
         }
+    }
+
+    fun addUserToFirestore(user: UserFirestore) {
+        repository.addUserToFirestore(user)
     }
 
 
