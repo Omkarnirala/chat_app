@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "227213971985",
+    "project_id": "chatapp-3bed3",
+    "storage_bucket": "chatapp-3bed3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:227213971985:android:5a52befb07b52009c057b0",
+        "android_client_info": {
+          "package_name": "com.omkar.chatapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFL_YxhyCgF7r0ml7LRQjxfJOKtcv6HAg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:padding="@dimen/twenty_dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/ivIcon"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:layout_margin="@dimen/ten_dp"
+        android:src="@drawable/no_data"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/poppins_medium"
+        android:text="@string/app_name"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ivIcon" />
+
+    <TextView
+        android:id="@+id/tvStoreCredits"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/poppins_medium"
+        android:text="Store Credit Added"
+        android:textAlignment="center"
+        android:visibility="gone"
+        android:textSize="27sp"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ivIcon" />
+
+    <TextView
+        android:id="@+id/tvPrice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/poppins_bold"
+        android:text="@string/app_name"
+        android:textAlignment="center"
+        android:visibility="gone"
+        android:textSize="@dimen/forty_dp"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvStoreCredits" />
+
+    <!--    <com.google.android.material.button.MaterialButton-->
+    <!--        android:id="@+id/buttonOk"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginTop="24dp"-->
+    <!--        android:backgroundTint="@color/black"-->
+    <!--        android:fontFamily="@font/poppins_regular"-->
+    <!--        android:stateListAnimator="@null"-->
+    <!--        android:text="@string/ok"-->
+    <!--        android:paddingStart="50dp"-->
+    <!--        app:shapeAppearance="@style/buttonShape"-->
+    <!--        android:paddingEnd="50dp"-->
+    <!--        android:textAllCaps="false"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/tvMessage"-->
+    <!--        app:shapeAppearanceOverlay="@style/buttonShape" />-->
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonOk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="@color/color_primary"
+        android:fontFamily="@font/poppins_medium"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        android:text="@string/ok"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sixteen_sp"
+        android:textStyle="bold"
+        android:paddingHorizontal="50dp"
+        app:cornerRadius="@dimen/ten_dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvMessage" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonOk2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="@color/color_primary"
+        android:fontFamily="@font/poppins_medium"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        android:text="@string/ok"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sixteen_sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:paddingHorizontal="50dp"
+        app:cornerRadius="@dimen/ten_dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvPrice" />
+</androidx.constraintlayout.widget.ConstraintLayout>

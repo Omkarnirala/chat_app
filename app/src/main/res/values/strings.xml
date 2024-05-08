@@ -1,0 +1,52 @@
+<resources>
+    <string name="app_name">Chat App</string>
+    <string name="version" translatable="false">Version %1$s</string>
+    <string name="ok" translatable="false">Ok</string>
+    <string name="not_connected_to_internet">Not Connected To Internet</string>
+    <string name="to_reset_your_password_please_enter_your_email_id_and_follow_the_instruction" translatable="false">To reset your password, please enter your Email ID and follow the instructions.</string>
+    <string name="enter_first_name" translatable="false">Enter first name</string>
+    <string name="enter_email_address_valid" translatable="false">Enter valid email address</string>
+    <string name="enter_password" translatable="false">Enter password</string>
+    <string name="email" translatable="false">Email</string>
+    <string name="password" translatable="false">Password</string>
+    <string name="login" translatable="false">Login</string>
+    <string name="forget_password" translatable="false">Forget Password</string>
+    <string name="or" translatable="false">Or</string>
+    <string name="sign_up" translatable="false">SignUp</string>
+    <string name="forgot_your_password" translatable="false">Forget Your Password</string>
+    <string name="reset" translatable="false">Reset</string>
+    <string name="no_internet" translatable="false">No Internet</string>
+    <string name="check" translatable="false">Check</string>
+    <string name="loading" translatable="false">Loading</string>
+    <string name="deleting" translatable="false">Deleting</string>
+    <string name="please_wait" translatable="false">Please Wait</string>
+    <string name="enter_email_address" translatable="false">Enter Email Address</string>
+    <string name="reset_link_on_regestered_email" translatable="false">Reset link on regestered Email</string>
+    <string name="failed_to_send_reset_link" translatable="false">Failed to send Reset Link</string>
+    <string name="scan_aaddhar_card" translatable="false">Scan Aaddhar Card</string>
+    <string name="invalid_aadhaar" translatable="false">Invalid Aadhaar</string>
+    <string name="valid_aadhaar" translatable="false">Valid Aadhaar</string>
+    <string name="back" translatable="false">Back</string>
+    <string name="logout" translatable="false">Logout</string>
+    <string name="flash_off" translatable="false">Flash Off</string>
+    <string name="flash_on" translatable="false">Flash On</string>
+    <string name="upload_doc_id" translatable="false">Upload Doc ID</string>
+    <string name="upload_selfie" translatable="false">Upload Selfie</string>
+    <string name="save" translatable="false">Save</string>
+    <string name="home" translatable="false">Home</string>
+    <string name="scan" translatable="false">Scan</string>
+    <string name="upload" translatable="false">Upload</string>
+    <string name="documents_count">Total Scan count: %1$s</string>
+    <string name="snackbar_dismiss">snackbar dismiss</string>
+    <string name="snackbar_show">snackbar show</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="messages">Messages</string>
+    <string name="dummy_user_name">Alex Linderson</string>
+    <string name="dummy_message">How are you today?</string>
+    <string name="_3">3</string>
+    <string name="dummy_time">2 min ago</string>
+    <string name="search">Search</string>
+    <string name="dashboard">Dashboard</string>
+
+</resources>

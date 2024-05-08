@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/imageViewProfile"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:src="@drawable/dummy_user"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <View
+        android:id="@+id/status_indicator"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:background="@drawable/online_status"
+        app:layout_constraintEnd_toEndOf="@id/imageViewProfile"
+        app:layout_constraintBottom_toBottomOf="@id/imageViewProfile"/>
+
+    <TextView
+        android:id="@+id/textViewName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/dummy_user_name"
+        android:textSize="16sp"
+        android:fontFamily="@font/poppins_bold"
+        android:layout_marginStart="@dimen/ten_dp"
+        app:layout_constraintEnd_toStartOf="@+id/textViewMessagesTime"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@id/imageViewProfile"
+        app:layout_constraintTop_toTopOf="@id/imageViewProfile" />
+
+    <TextView
+        android:id="@+id/textViewMessage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_light"
+        android:text="@string/dummy_message"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewProfile"
+        app:layout_constraintEnd_toStartOf="@+id/textViewUnreadMessages"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@id/textViewName"
+        app:layout_constraintTop_toBottomOf="@id/textViewName"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textViewMessagesTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/dummy_time"
+        android:textColor="#797C7B"
+        app:layout_constraintBottom_toBottomOf="@+id/textViewName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textViewName" />
+
+    <TextView
+        android:id="@+id/textViewUnreadMessages"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/unread_message_status"
+        android:gravity="center"
+        android:text="@string/_3"
+        android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="@+id/textViewMessage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textViewMessage" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

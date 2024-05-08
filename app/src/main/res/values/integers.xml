@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="email_length">70</integer>
+    <integer name="password_length">15</integer>
+    <integer name="coupon_code_length">11</integer>
+    <integer name="coupon_description_length">50</integer>
+    <integer name="redemption_limit_length">2</integer>
+    <integer name="one_line">1</integer>
+    <integer name="future_day_count_length">2</integer>
+    <integer name="min_pick_time_length">3</integer>
+    <integer name="max_pick_time_length">3</integer>
+    <integer name="min_delivery_time_length">3</integer>
+    <integer name="max_delivery_time_length">3</integer>
+    <integer name="max_amount_length">9</integer>
+    <integer name="max_amount_three_digit_length">6</integer>
+    <integer name="max_discount_length">5</integer>
+    <integer name="mobile_number_length">10</integer>
+    <integer name="street_address_length">50</integer>
+    <integer name="suite_address_length">50</integer>
+    <integer name="city_length">50</integer>
+    <integer name="pin_code_length">5</integer>
+    <integer name="passcode_length">4</integer>
+    <integer name="state_length">2</integer>
+
+    <integer name="half_and_half_menu_name_length">32</integer>
+    <integer name="half_and_half_menu_description_length">118</integer>
+
+    <integer name="myop_menu_name_length">32</integer>
+    <integer name="myop_menu_description_length">118</integer>
+
+    <integer name="speciality_menu_name_length">32</integer>
+    <integer name="speciality_menu_description_length">100</integer>
+
+    <integer name="side_order_menu_name_length">32</integer>
+    <integer name="side_order_menu_description_length">100</integer>
+    <integer name="first_name_length">30</integer>
+    <integer name="last_name_length">30</integer>
+    <integer name="phone_number_length">10</integer>
+    <integer name="pincode_length">5</integer>
+    <integer name="max_product_name_length">100</integer>
+    <integer name="max_product_desc_length">2500</integer>
+
+</resources>
