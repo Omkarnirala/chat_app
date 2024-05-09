@@ -9,5 +9,12 @@ class DashboardViewModel: ViewModel() {
 
     val allUsers: LiveData<List<UserFirestore>> = repository.getAllUsers()
 
-    // Existing signIn and updateProfile methods
+    fun getCurrentUser(): LiveData<UserFirestore> {
+        return repository.getUserData()
+    }
+
+    fun setUserOnlineStatus(isOnline: Boolean) {
+        repository.setUserOnlineStatus(isOnline)
+    }
+
 }

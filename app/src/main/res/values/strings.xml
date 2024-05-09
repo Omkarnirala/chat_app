@@ -50,5 +50,8 @@
     <string name="dashboard">Dashboard</string>
     <string name="profile_picture">Profile Picture</string>
     <string name="status">Status</string>
+    <string name="username">User Name</string>
+    <string name="about_user">About User</string>
+    <string name="profile">Profile</string>
 
 </resources>

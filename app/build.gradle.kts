@@ -92,5 +92,5 @@ dependencies {
 //    implementation ("androidx.camera:camera-lifecycle:1.2.0-alpha01")
 //    implementation ("androidx.camera:camera-view:1.2.0-alpha01")
 //
-//    implementation ("com.github.dhaval2404:imagepicker:2.1")
+    implementation ("com.github.dhaval2404:imagepicker:2.1")
 }

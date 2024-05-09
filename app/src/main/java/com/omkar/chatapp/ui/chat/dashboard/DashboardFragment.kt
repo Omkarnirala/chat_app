@@ -6,16 +6,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
+import com.omkar.chatapp.R
 import com.omkar.chatapp.databinding.FragmentDashboardBinding
 import com.omkar.chatapp.ui.signin.signup.UserFirestore
 import com.omkar.chatapp.utils.BaseFragment
 import com.omkar.chatapp.utils.FirebaseEvent
 import com.omkar.chatapp.utils.USER_EMAIL
 import com.omkar.chatapp.utils.getStringData
+import com.omkar.chatapp.utils.log
 import com.omkar.chatapp.utils.showInternetError
 import com.omkar.chatapp.utils.toasty
 
@@ -62,7 +66,30 @@ class DashboardFragment : BaseFragment() , UsersAdapter.UserCallback {
                 layoutManager = LinearLayoutManager(context)
                 adapter = usersAdapter
             }
+
+            dashboardViewModel.getCurrentUser().observe(viewLifecycleOwner){userData ->
+                log(mTag, "Image URL: ${userData.profileImageUrl}")
+                Glide.with(b.toolbar.profileImage.context).load(userData.profileImageUrl)
+                    .into(b.toolbar.profileImage)
+            }
+
+            // Set user as online when the activity is created
+            dashboardViewModel.setUserOnlineStatus(true)
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        // Set user as offline when the activity is created
+        dashboardViewModel.setUserOnlineStatus(false)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // Set user as online when the activity is created
+        dashboardViewModel.setUserOnlineStatus(true)
     }
 
     private fun getViewModelData() {
@@ -70,15 +97,21 @@ class DashboardFragment : BaseFragment() , UsersAdapter.UserCallback {
             dashboardViewModel.allUsers.observe(viewLifecycleOwner) {userList ->
                 usersAdapter?.updateList(userList)
             }
+
         }
     }
 
     private fun viewListener() {
-
+        cxt?.let {
+            b.toolbar.profileImage.setOnClickListener {
+                findNavController().navigate(R.id.action_dashboardFragment_to_profileFragment)
+            }
+        }
     }
 
     override fun onUserClickedCallBack(position: Int, user: UserFirestore) {
         toasty(requireContext(), "User Clicked: ${user.email}")
     }
+
 
 }

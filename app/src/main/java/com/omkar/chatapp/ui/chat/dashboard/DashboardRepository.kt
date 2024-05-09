@@ -28,20 +28,31 @@ class DashboardRepository {
         return usersLiveData
     }
 
-    fun getNewAllUsers(): LiveData<List<UserFirestore>> {
-        val usersLiveData = MutableLiveData<List<UserFirestore>>()
-        db.collection("users")
-            .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    log("UserRepo", "Listen failed $e")
-                    usersLiveData.postValue(emptyList())
-                    return@addSnapshotListener
+    fun getUserData(): LiveData<UserFirestore> {
+        val userData = MutableLiveData<UserFirestore>()
+
+        db.collection("users").document(auth.currentUser?.uid.toString()).get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    userData.value = documentSnapshot.toObject(UserFirestore::class.java)
                 }
-                val users = snapshot?.documents?.mapNotNull { it.toObject(UserFirestore::class.java) }
-                    ?.filter { it.uid != FirebaseAuth.getInstance().currentUser?.uid }
-                usersLiveData.postValue(users ?: emptyList())
             }
-        return usersLiveData
+            .addOnFailureListener { exception ->
+                log("Firestore", "Error getting documents: $exception")
+            }
+
+        return userData
+    }
+
+    fun setUserOnlineStatus(isOnline: Boolean) {
+        db.collection("users").document(auth.currentUser?.uid.toString())
+            .update("isOnline", isOnline)
+            .addOnSuccessListener {
+                log("Firestore", "User online status updated to $isOnline")
+            }
+            .addOnFailureListener {
+                e -> log("Firestore", "Error updating online status: $e")
+            }
     }
 
 }

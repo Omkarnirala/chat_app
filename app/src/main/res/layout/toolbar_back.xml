@@ -31,7 +31,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -45,6 +45,7 @@
             android:fontFamily="@font/poppins_medium"
             android:textSize="@dimen/sixteen_sp"
             android:paddingHorizontal="2sp"
+            android:text="@string/app_name"
             android:gravity="center_vertical"
             android:textColor="@color/black"
             app:layout_constraintBottom_toBottomOf="parent"

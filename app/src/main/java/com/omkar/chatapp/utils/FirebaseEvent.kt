@@ -7,6 +7,7 @@ class FirebaseEvent {
         const val FORGET_PASSWORD = "page_forget_password"
 
         const val DASHBOARD_HOME = "page_dashboard_home"
+        const val PROFILE_FRAGMENT = "profile_fragment"
         const val DASHBOARD_SCAN = "page_dashboard_scan"
         const val DASHBOARD_SETTINGS = "page_dashboard_settings"
         const val DASHBOARD_PROFILE = "page_dashboard_profile"
