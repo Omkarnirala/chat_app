@@ -127,11 +127,12 @@ class SignupFragment : BaseFragment() {
 
 
                             result.user.let {
-                                val user = UserFirestore(
+                                val user = UserDetailsModel(
                                     uid = it.uid,
                                     email = it.email,
                                     displayName = it.displayName,
-                                    profileImageUrl = it.photoUrl?.toString()
+                                    profileImageUrl = it.photoUrl?.toString(),
+                                    isOnline = true
                                 )
                                 authViewModel.addUserToFirestore(user)
                                 setBooleanData(context, IS_LOGIN, true)

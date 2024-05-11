@@ -1,20 +1,22 @@
 package com.omkar.chatapp.ui.chat.dashboard
 
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.omkar.chatapp.ui.signin.signup.UserFirestore
+import androidx.lifecycle.viewModelScope
+import com.omkar.chatapp.ui.signin.signup.UserDetailsModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class DashboardViewModel: ViewModel() {
+class DashboardViewModel : ViewModel() {
     private val repository = DashboardRepository()
 
-    val allUsers: LiveData<List<UserFirestore>> = repository.getAllUsers()
-
-    fun getCurrentUser(): LiveData<UserFirestore> {
+    fun getCurrentUser(): MutableLiveData<UserDetailsModel?> {
         return repository.getUserData()
     }
 
     fun setUserOnlineStatus(isOnline: Boolean) {
-        repository.setUserOnlineStatus(isOnline)
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.setUserOnlineStatus(isOnline)
+        }
     }
-
 }

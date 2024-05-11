@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.firebase.Timestamp
 import com.omkar.chatapp.BuildConfig
 import com.omkar.chatapp.LauncherActivity
 import com.omkar.chatapp.MainActivity
@@ -23,6 +24,9 @@ import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import timber.log.Timber
 import java.io.StringReader
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.regex.Pattern
 
 fun log(mTag: String, message: String) {
@@ -460,6 +464,13 @@ fun reverse(myArray: IntArray): IntArray {
         reversed[i] = myArray[myArray.size - (i + 1)]
     }
     return reversed
+}
+
+fun formatTimestampTo12Hour(timestamp: com.google.firebase.Timestamp?): String {
+    val inputFormat = SimpleDateFormat("MMM dd, yyyy 'at' hh:mm:ss a 'UTC'XXX", Locale.ENGLISH)
+    val date: Date = inputFormat.parse(inputFormat.toString()) ?: throw IllegalArgumentException("Invalid date") // Convert Timestamp to java.util.Date
+    val formatter = SimpleDateFormat("hh:mm a", Locale.ENGLISH)
+    return formatter.format(date.toString())
 }
 
 

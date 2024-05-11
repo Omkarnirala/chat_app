@@ -5,7 +5,7 @@ import com.omkar.chatapp.ui.signin.signup.SignUpResult
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.omkar.chatapp.ui.signin.signup.UserFirestore
+import com.omkar.chatapp.ui.signin.signup.UserDetailsModel
 import com.omkar.chatapp.utils.timberLog
 
 class AuthRepository {
@@ -48,7 +48,7 @@ class AuthRepository {
             }
     }
 
-    fun addUserToFirestore(user: UserFirestore): Task<Void> {
+    fun addUserToFirestore(user: UserDetailsModel): Task<Void> {
         return db.collection("users").document(user.uid).set(user)
     }
 

@@ -1,6 +1,10 @@
 package com.omkar.chatapp.ui.signin.signup
 
-data class UserFirestore(
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class UserDetailsModel(
     var uid: String = "",
     var email: String? = null,
     var displayName: String? = null,
@@ -8,5 +12,6 @@ data class UserFirestore(
     var status: String? = "Hey there! I am using ChatApp.",
     var lastMessage: String? = null,
     var lastOnlineTime: Long = System.currentTimeMillis(),
-    var isOnline: Boolean = false
-)
+    var isOnline: Boolean? = true,
+) : Parcelable
+

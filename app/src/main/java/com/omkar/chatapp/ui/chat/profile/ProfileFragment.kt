@@ -19,6 +19,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -34,6 +36,9 @@ import com.omkar.chatapp.utils.hideMaterialProgressBar
 import com.omkar.chatapp.utils.showInternetError
 import com.omkar.chatapp.utils.showMaterialProgressBar
 import com.omkar.chatapp.utils.toasty
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -62,15 +67,13 @@ class ProfileFragment : BaseFragment() {
             val data = result.data
             when (resultCode) {
                 Activity.RESULT_OK -> {
-                    val fileUri = data?.data!!
-//                b.includeUpload.progressDemSelfie.visibility = View.VISIBLE
-//                b.includeUpload.ivDemoSelfie.visibility = View.GONE
-                    uploadImageToFirebase(PROFILE_REQUEST, fileUri)
+                    b.ivProfile.visibility = View.INVISIBLE
+                    b.progressBar.visibility = View.VISIBLE
+                    uploadImageToFirebase(data?.data)
                 }
 
                 ImagePicker.RESULT_ERROR -> {
-                    Toast.makeText(requireContext(), ImagePicker.getError(data), Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(requireContext(), ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
                 }
 
                 else -> {
@@ -79,10 +82,14 @@ class ProfileFragment : BaseFragment() {
             }
         }
 
-    private fun uploadImageToFirebase(selfieRequest: Int, fileUri: Uri) {
-        viewModel.uploadImage(fileUri,
+    private fun uploadImageToFirebase(fileUri: Uri?) {
+        viewModel.uploadImage(
+            fileUri,
             onSuccess = { url ->
                 currentPhotoFile = url
+                b.ivProfile.visibility = View.VISIBLE
+                b.progressBar.visibility = View.GONE
+                Glide.with(b.ivProfile.context).load(url).apply(RequestOptions().circleCrop()).into(b.ivProfile)
                 toasty(requireContext(), "Done")
             },
             onFailure = { exception ->
@@ -112,7 +119,6 @@ class ProfileFragment : BaseFragment() {
     }
 
     private fun initView() {
-
         snackbar = showInternetError(context, b.rootLayout)
 
         firebaseAnalytics?.logEvent(FirebaseEvent.PROFILE_FRAGMENT) {
@@ -164,7 +170,6 @@ class ProfileFragment : BaseFragment() {
                 }
             }
 
-
             b.buttonSave.setOnClickListener {
                 hideKeyboard(requireActivity())
                 b.buttonSave.showMaterialProgressBar(R.string.please_wait)
@@ -178,30 +183,32 @@ class ProfileFragment : BaseFragment() {
     }
 
     private fun dispatchTakePictureIntent(selfieRequest: Int, context: Context) {
-        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
-            takePictureIntent.resolveActivity(requireContext().packageManager)?.also {
-                val photoFile: File? = try {
-                    createImageFile(selfieRequest, context)
-                } catch (ex: IOException) {
-                    null
-                }
-                photoFile?.also {
-                    photoURI = FileProvider.getUriForFile(
-                        requireContext(),
-                        requireActivity().packageName,
-                        it
-                    )
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                    ImagePicker.with(requireActivity())
-                        .compress(1024)
-                        .cameraOnly()
-                        .maxResultSize(
-                            1080,
-                            1080
-                        )  //Final image resolution will be less than 1080 x 1080(Optional)
-                        .createIntent { intent ->
-                            takeSelfieLauncher.launch(intent)
-                        }
+        CoroutineScope(Dispatchers.IO).launch {
+            Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+                takePictureIntent.resolveActivity(requireContext().packageManager)?.also {
+                    val photoFile: File? = try {
+                        createImageFile(selfieRequest, context)
+                    } catch (ex: IOException) {
+                        null
+                    }
+                    photoFile?.also {
+                        photoURI = FileProvider.getUriForFile(
+                            requireContext(),
+                            requireActivity().packageName,
+                            it
+                        )
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                        ImagePicker.with(requireActivity())
+                            .compress(1024)
+                            .cameraOnly()
+                            .maxResultSize(
+                                1080,
+                                1080
+                            )  //Final image resolution will be less than 1080 x 1080(Optional)
+                            .createIntent { intent ->
+                                takeSelfieLauncher.launch(intent)
+                            }
+                    }
                 }
             }
         }

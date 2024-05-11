@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.omkar.chatapp.ui.signin.signup.SignUpResult
 import com.google.firebase.auth.AuthResult
-import com.omkar.chatapp.ui.signin.signup.UserFirestore
+import com.omkar.chatapp.ui.signin.signup.UserDetailsModel
 import com.omkar.chatapp.utils.timberLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -61,12 +61,9 @@ class AuthViewModel(
         }
     }
 
-    fun addUserToFirestore(user: UserFirestore) {
+    fun addUserToFirestore(user: UserDetailsModel) {
         repository.addUserToFirestore(user)
     }
-
-
-
 
     /**
      * Validation

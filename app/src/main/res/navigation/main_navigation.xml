@@ -13,11 +13,23 @@
         <action
             android:id="@+id/action_dashboardFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_messageFragment"
+            app:destination="@id/messageFragment" >
+            <argument
+                android:name="user"
+                app:argType="com.omkar.chatapp.ui.signin.signup.UserDetailsModel" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.omkar.chatapp.ui.chat.profile.ProfileFragment"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" />
+    <fragment
+        android:id="@+id/messageFragment"
+        android:name="com.omkar.chatapp.ui.chat.messaging.MessageFragment"
+        android:label="fragment_message"
+        tools:layout="@layout/fragment_message" />
 
 </navigation>

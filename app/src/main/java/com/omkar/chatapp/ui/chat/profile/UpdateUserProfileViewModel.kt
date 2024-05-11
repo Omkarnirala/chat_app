@@ -4,6 +4,9 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class UpdateUserProfileViewModel() : ViewModel() {
 
@@ -18,22 +21,25 @@ class UpdateUserProfileViewModel() : ViewModel() {
         profileImageUrl: String?,
         status: String?,
     ) {
-        val updates = mutableMapOf<String, Any>()
+        viewModelScope.launch(Dispatchers.IO) {
+            val updates = mutableMapOf<String, Any>()
+            displayName?.let { updates["displayName"] = it }
+            profileImageUrl?.let { updates["profileImageUrl"] = it }
+            status?.let { updates["status"] = it }
 
-        displayName?.let { updates["displayName"] = it }
-        profileImageUrl?.let { updates["profileImageUrl"] = it }
-        status?.let { updates["status"] = it }
-
-        userProfileRepository.updateUserProfile(updates) { status ->
-            _updateResult.postValue(status)
+            userProfileRepository.updateUserProfile(updates) { status ->
+                _updateResult.postValue(status)
+            }
         }
     }
 
     fun uploadImage(
-        imageUri: Uri,
+        imageUri: Uri?,
         onSuccess: (String) -> Unit,
-        onFailure: (Exception) -> Unit
+        onFailure: (Exception) -> Unit,
     ) {
-        userProfileRepository.uploadImage(imageUri, onSuccess, onFailure)
+        viewModelScope.launch(Dispatchers.IO) {
+            userProfileRepository.uploadImage(imageUri, onSuccess, onFailure)
+        }
     }
 }

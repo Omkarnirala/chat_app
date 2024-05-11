@@ -28,13 +28,13 @@ class UpdateUserProfileRepository {
     }
 
     fun uploadImage(
-        imageUri: Uri,
+        imageUri: Uri?,
         onSuccess: (String) -> Unit,
-        onFailure: (Exception) -> Unit
+        onFailure: (Exception) -> Unit,
     ) {
         val imageName = auth.currentUser?.email
         val imageRef = storageRef.child("$imageName/${"Profile Pic"}")
-        imageRef.putFile(imageUri)
+        imageRef.putFile(imageUri?: Uri.EMPTY)
             .addOnSuccessListener {
                 // Image uploaded successfully
                 imageRef.downloadUrl.addOnSuccessListener { uri ->

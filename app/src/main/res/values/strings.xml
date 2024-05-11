@@ -53,5 +53,9 @@
     <string name="username">User Name</string>
     <string name="about_user">About User</string>
     <string name="profile">Profile</string>
+    <string name="type_your_message">Type your message</string>
+    <string name="receiver_message">Receiver Message</string>
+    <string name="time">2:00 AM</string>
+    <string name="sender_message">Sender Message</string>
 
 </resources>

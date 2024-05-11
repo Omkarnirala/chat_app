@@ -8,22 +8,28 @@ import androidx.activity.addCallback
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.Query
 import com.omkar.chatapp.R
 import com.omkar.chatapp.databinding.FragmentDashboardBinding
-import com.omkar.chatapp.ui.signin.signup.UserFirestore
+import com.omkar.chatapp.ui.signin.signup.UserDetailsModel
 import com.omkar.chatapp.utils.BaseFragment
 import com.omkar.chatapp.utils.FirebaseEvent
+import com.omkar.chatapp.utils.FirebaseUtil
 import com.omkar.chatapp.utils.USER_EMAIL
 import com.omkar.chatapp.utils.getStringData
 import com.omkar.chatapp.utils.log
 import com.omkar.chatapp.utils.showInternetError
 import com.omkar.chatapp.utils.toasty
 
-class DashboardFragment : BaseFragment() , UsersAdapter.UserCallback {
+class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback {
 
     private val mTag = "DashboardFragment"
 
@@ -32,6 +38,7 @@ class DashboardFragment : BaseFragment() , UsersAdapter.UserCallback {
     private lateinit var dashboardViewModel: DashboardViewModel
     private var usersAdapter: UsersAdapter? = null
     private var snackbar: Snackbar? = null
+    private val auth = FirebaseAuth.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,7 +59,7 @@ class DashboardFragment : BaseFragment() , UsersAdapter.UserCallback {
     }
 
     private fun initView() {
-        cxt?.let {context ->
+        cxt?.let { context ->
             snackbar = showInternetError(context, b.rootLayout)
 
             firebaseAnalytics?.logEvent(FirebaseEvent.DASHBOARD_HOME) {
@@ -61,16 +68,9 @@ class DashboardFragment : BaseFragment() , UsersAdapter.UserCallback {
             }
 
             dashboardViewModel = ViewModelProvider(this)[DashboardViewModel::class.java]
-            usersAdapter = UsersAdapter(arrayListOf(), this)
-            b.rvUserList.apply {
-                layoutManager = LinearLayoutManager(context)
-                adapter = usersAdapter
-            }
 
-            dashboardViewModel.getCurrentUser().observe(viewLifecycleOwner){userData ->
-                log(mTag, "Image URL: ${userData.profileImageUrl}")
-                Glide.with(b.toolbar.profileImage.context).load(userData.profileImageUrl)
-                    .into(b.toolbar.profileImage)
+            dashboardViewModel.getCurrentUser().observe(viewLifecycleOwner) { userData ->
+                Glide.with(b.toolbar.profileImage.context).load(userData?.profileImageUrl).apply(RequestOptions().circleCrop()).into(b.toolbar.profileImage)
             }
 
             // Set user as online when the activity is created
@@ -93,10 +93,26 @@ class DashboardFragment : BaseFragment() , UsersAdapter.UserCallback {
     }
 
     private fun getViewModelData() {
-        cxt?.let {context ->
-            dashboardViewModel.allUsers.observe(viewLifecycleOwner) {userList ->
-                usersAdapter?.updateList(userList)
+        cxt?.let { context ->
+
+            val query = FirebaseUtil.getAllUserDetails().whereNotEqualTo("uid", auth.currentUser?.uid)
+            val option = FirestoreRecyclerOptions.Builder<UserDetailsModel>().setQuery(query, UserDetailsModel::class.java).build()
+            log(mTag, "setupMessagingRecyclerView: ${option.snapshots.filter {  it.uid != auth.currentUser?.uid }}")
+
+            usersAdapter = UsersAdapter(option, this)
+            b.rvUserList.apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter = usersAdapter
             }
+
+            usersAdapter?.startListening()
+            usersAdapter?.registerAdapterDataObserver(object : AdapterDataObserver(){
+                override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                    super.onItemRangeInserted(positionStart, itemCount)
+                    b.rvUserList.scrollToPosition(0)
+                    log(mTag, "onItemRangeInserted: $itemCount")
+                }
+            })
 
         }
     }
@@ -109,9 +125,12 @@ class DashboardFragment : BaseFragment() , UsersAdapter.UserCallback {
         }
     }
 
-    override fun onUserClickedCallBack(position: Int, user: UserFirestore) {
-        toasty(requireContext(), "User Clicked: ${user.email}")
+    override fun onUserClickedCallBack(position: Int, user: UserDetailsModel?) {
+        toasty(requireContext(), "User Clicked: ${user?.isOnline}")
+        val bundle = Bundle().apply {
+            putParcelable("user", user)
+        }
+        findNavController().navigate(R.id.action_dashboardFragment_to_messageFragment, bundle)
     }
-
 
 }
