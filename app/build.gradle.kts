@@ -102,4 +102,6 @@ dependencies {
     implementation("com.github.dhaval2404:imagepicker:2.1")
     implementation("com.vanniktech:emoji-google-compat:0.18.0")
 
+    implementation("com.github.ZEGOCLOUD:zego_uikit_prebuilt_call_android:+")
+
 }

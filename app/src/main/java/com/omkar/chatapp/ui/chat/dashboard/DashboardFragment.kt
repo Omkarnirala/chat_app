@@ -22,8 +22,10 @@ import com.omkar.chatapp.utils.BaseFragment
 import com.omkar.chatapp.utils.FirebaseEvent
 import com.omkar.chatapp.utils.FirebaseUtil
 import com.omkar.chatapp.utils.USER_EMAIL
+import com.omkar.chatapp.utils.USER_NAME
 import com.omkar.chatapp.utils.getStringData
 import com.omkar.chatapp.utils.log
+import com.omkar.chatapp.utils.setStringData
 import com.omkar.chatapp.utils.showInternetError
 
 class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback {
@@ -68,6 +70,10 @@ class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback {
                     log(mTag, "initView: ${uri.result}")
                     Glide.with(b.toolbar.profileImage.context).load(uri.result).apply(RequestOptions().circleCrop()).into(b.toolbar.profileImage)
                 }
+            }
+
+            FirebaseUtil.currentUserName(auth.uid).let {
+                setStringData(context, USER_NAME, it)
             }
 
         }

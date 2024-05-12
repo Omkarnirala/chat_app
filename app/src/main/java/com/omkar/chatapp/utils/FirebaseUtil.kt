@@ -21,7 +21,27 @@ object FirebaseUtil {
     fun isLoggedIn(): Boolean = currentUserId() != null
 
     fun currentUserDetails(): DocumentReference =
-        FirebaseFirestore.getInstance().collection("users").document(currentUserId()!!)
+        FirebaseFirestore.getInstance().collection("users").document(currentUserId().toString())
+
+    fun currentUserName(uid: String?): String {
+        var currentUserName = ""
+        FirebaseFirestore.getInstance().collection("users")
+            .document(uid.toString())
+            .get()
+            .addOnCompleteListener {
+                if (it.isSuccessful) {
+                    val document = it.result
+                    if (document != null) {
+                        currentUserName =  document.getString("displayName").toString()
+                        log(mTag, "currentUserName DocumentSnapshot data: $currentUserName")
+                    }
+                }
+            }
+            .addOnFailureListener {
+                log(mTag, "currentUserName Error getting document: $it")
+            }
+        return currentUserName
+    }
 
     fun getAllUserDetails(): CollectionReference = FirebaseFirestore.getInstance().collection("users")
 
@@ -38,7 +58,6 @@ object FirebaseUtil {
     }
 
     fun getOtherUserOnlineStatus(uid: String?): DocumentReference = FirebaseFirestore.getInstance().collection("users").document(uid.toString())
-
 
     fun allUserCollectionReference(): CollectionReference =
         FirebaseFirestore.getInstance().collection("users")
@@ -62,7 +81,7 @@ object FirebaseUtil {
             allUserCollectionReference().document(userIds[0])
         }
 
-    fun timestampToString(timestamp: com.google.firebase.Timestamp): String =
+    fun timestampToString(timestamp: Timestamp): String =
         SimpleDateFormat("HH:mm a", Locale.getDefault()).format(timestamp.toDate())
 
     fun logout() {
@@ -75,4 +94,7 @@ object FirebaseUtil {
     fun getOtherProfilePicStorageRef(otherUserId: String): StorageReference =
         FirebaseStorage.getInstance().getReference("$otherUserId/${"Profile Pic"}")
 
+
 }
+
+

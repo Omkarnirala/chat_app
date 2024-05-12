@@ -25,12 +25,12 @@ import com.omkar.chatapp.utils.FirebaseEvent
 import com.omkar.chatapp.utils.FirebaseUtil
 import com.omkar.chatapp.utils.USER_EMAIL
 import com.omkar.chatapp.utils.getStringData
-import com.omkar.chatapp.utils.hideKeyboard
 import com.omkar.chatapp.utils.log
 import com.omkar.chatapp.utils.showInternetError
 import com.omkar.chatapp.utils.showKeyboard
 import com.omkar.chatapp.utils.toasty
 import com.vanniktech.emoji.EmojiPopup
+import com.zegocloud.uikit.service.defines.ZegoUIKitUser
 
 class MessageFragment : BaseFragment() {
 
@@ -133,13 +133,13 @@ class MessageFragment : BaseFragment() {
             log(mTag, "Receiver Data: $receiverData")
             chatroomId = FirebaseUtil.getChatroomId(FirebaseUtil.currentUserId()!!, receiverData?.uid.toString())
 
-
         }
     }
 
     private fun getViewModelData() {
         cxt?.let { context ->
-
+            setAudioCall(receiverData?.uid.toString())
+            setVideoCall(receiverData?.uid.toString())
         }
     }
 
@@ -208,6 +208,14 @@ class MessageFragment : BaseFragment() {
                 }
                 showKeyboard(requireActivity())
             }
+
+//            b.ivAudioCall.setOnClickListener { i, s, zegoCallUsers ->
+//                setAudioCall(receiverData?.uid.toString())
+//            }
+//
+//            b.ivVideoCall.setOnClickListener { i, s, zegoCallUsers ->
+//                setVideoCall(receiverData?.uid.toString())
+//            }
         }
     }
 
@@ -236,6 +244,70 @@ class MessageFragment : BaseFragment() {
                     sendNotification(message)
                 }
             }
+    }
+
+/*
+    private fun addCallFragment() {
+        val appID: Long = 1602751084
+        val appSign = "98aed2b4e01ff9affd18ae5aa05f658293d4116b1a6238939dbeb02238f487d3"
+        val callID: String = chatroomId
+        val userID: String = auth.currentUser?.uid.toString()
+        val userName: String = auth.currentUser?.displayName.toString()
+
+        // Modify your custom configurations here.
+        val callInvitationConfig = ZegoUIKitPrebuiltCallInvitationConfig()
+        callInvitationConfig.innerText.incomingCallPageDeclineButton = "Decline"
+        callInvitationConfig.innerText.incomingCallPageAcceptButton = "Accept"
+        callInvitationConfig.incomingCallRingtone = "zego_uikit_ringtone_call"
+
+//        callInvitationConfig.notificationConfig.sound = "zego_uikit_sound_call"
+//        callInvitationConfig.notificationConfig.channelID = "CallInvitation"
+//        callInvitationConfig.notificationConfig.channelName = "CallInvitation"
+        ZegoUIKitPrebuiltCallService.init(activity?.application, appID, appSign, userID, userName, callInvitationConfig);
+
+    }
+*/
+
+    private fun setAudioCall(targetUserId: String) {
+//        b.ivAudioCall.setIsVideoCall(false)
+//        b.ivAudioCall.resourceID = "zego_uikit_call"
+//        b.ivAudioCall.setInvitees(Collections.singletonList(ZegoUIKitUser(targetUserId)))
+
+        val newVoiceCall = b.ivAudioCall
+        newVoiceCall.setIsVideoCall(false)
+
+        newVoiceCall.resourceID = "zego_data"
+
+        val split = targetUserId.split(",")
+        val users = ArrayList<ZegoUIKitUser>()
+        for (userID in split) {
+            println("userID=$userID")
+            val userName = receiverData?.displayName
+            users.add(ZegoUIKitUser(userID, userName))
+        }
+        newVoiceCall.setInvitees(users)
+    }
+
+
+    private fun setVideoCall(targetUserId: String){
+
+        val newVideoCall = b.ivVideoCall
+        newVideoCall.setIsVideoCall(true)
+
+        //for notification sound
+        newVideoCall.resourceID = "zego_data"
+
+        newVideoCall.setOnClickListener { view ->
+            val split = targetUserId.split(",")
+            val users = ArrayList<ZegoUIKitUser>()
+            for (userID in split) {
+                println("userID=$userID")
+                val userName = receiverData?.displayName
+                users.add(ZegoUIKitUser(userID, userName))
+            }
+            newVideoCall.setInvitees(users)
+        }
+
     }
 
     private fun sendNotification(message: String) {

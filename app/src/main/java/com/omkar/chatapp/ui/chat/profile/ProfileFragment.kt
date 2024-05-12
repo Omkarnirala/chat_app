@@ -29,10 +29,12 @@ import com.omkar.chatapp.R
 import com.omkar.chatapp.databinding.FragmentProfileBinding
 import com.omkar.chatapp.utils.BaseFragment
 import com.omkar.chatapp.utils.FirebaseEvent
+import com.omkar.chatapp.utils.FirebaseUtil
 import com.omkar.chatapp.utils.USER_EMAIL
 import com.omkar.chatapp.utils.getStringData
 import com.omkar.chatapp.utils.hideKeyboard
 import com.omkar.chatapp.utils.hideMaterialProgressBar
+import com.omkar.chatapp.utils.logoutMethod
 import com.omkar.chatapp.utils.showInternetError
 import com.omkar.chatapp.utils.showMaterialProgressBar
 import com.omkar.chatapp.utils.toasty
@@ -46,7 +48,6 @@ import java.util.Date
 import java.util.Locale
 
 class ProfileFragment : BaseFragment() {
-
 
     companion object {
         private const val PROFILE_REQUEST = 1
@@ -179,6 +180,12 @@ class ProfileFragment : BaseFragment() {
                     b.tietAboutUser.text.toString()
                 )
             }
+
+            b.toolbar.tvLogout.setOnClickListener {
+                FirebaseUtil.logout()
+                logoutMethod(context)
+            }
+
         }
     }
 
