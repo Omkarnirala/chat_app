@@ -19,6 +19,7 @@
         android:id="@+id/status_indicator"
         android:layout_width="10dp"
         android:layout_height="10dp"
+        android:visibility="gone"
         android:background="@drawable/online_status"
         app:layout_constraintEnd_toEndOf="@id/imageViewProfile"
         app:layout_constraintBottom_toBottomOf="@id/imageViewProfile"/>
@@ -67,6 +68,7 @@
         android:layout_height="20dp"
         android:background="@drawable/unread_message_status"
         android:gravity="center"
+        android:visibility="gone"
         android:text="@string/_3"
         android:textColor="#ffffff"
         app:layout_constraintBottom_toBottomOf="@+id/textViewMessage"

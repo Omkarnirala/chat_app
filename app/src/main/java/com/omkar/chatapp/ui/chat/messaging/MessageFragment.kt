@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
@@ -18,6 +17,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.Query
+import com.omkar.chatapp.R
 import com.omkar.chatapp.databinding.FragmentMessageBinding
 import com.omkar.chatapp.ui.signin.signup.UserDetailsModel
 import com.omkar.chatapp.utils.BaseFragment
@@ -81,7 +81,8 @@ class MessageFragment : BaseFragment() {
                             userIds = listOf(FirebaseUtil.currentUserId(), receiverData?.uid),
                             lastMessageTimestamp = Timestamp.now(),
                             lastMessageSenderId = "",
-                            lastMessage = ""
+                            lastMessage = "",
+
                         )
                         FirebaseUtil.getChatroomReference(chatroomId).set(chatroomModel!!)
                     }
@@ -104,14 +105,15 @@ class MessageFragment : BaseFragment() {
         b.rvMessage.apply {
             layoutManager = manager
             adapter = messagesAdapter
+            smoothScrollToPosition(0)
         }
 
         messagesAdapter.startListening()
         messagesAdapter.registerAdapterDataObserver(object : AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, itemCount)
-                b.rvMessage.smoothScrollToPosition(0)
                 log(mTag, "onItemRangeInserted: $itemCount")
+                b.rvMessage.smoothScrollToPosition(0)
             }
 
         })
@@ -154,6 +156,25 @@ class MessageFragment : BaseFragment() {
                 }
             }
 
+            FirebaseUtil.getOtherUserOnlineStatus(receiverData?.uid)
+                .addSnapshotListener { value, error ->
+                    try {
+                        if (value != null) {
+                            val isOnline = value.getBoolean("isOnline")
+                            if (isOnline == true) {
+                                b.statusIndicator.setImageResource(R.drawable.online_status)
+                            } else {
+                                b.statusIndicator.setImageResource(R.drawable.offline_status)
+                            }
+                        } else {
+                            log(mTag, "viewListener: $error")
+                        }
+                    } catch (e: Exception) {
+                        log(mTag, "viewListener: $e")
+                    }
+
+                }
+
             b.userName.text = receiverData?.displayName
 
             b.ivSend.setOnClickListener {
@@ -187,8 +208,6 @@ class MessageFragment : BaseFragment() {
                 }
                 showKeyboard(requireActivity())
             }
-
-
         }
     }
 
@@ -212,19 +231,16 @@ class MessageFragment : BaseFragment() {
         FirebaseUtil.getChatroomMessageReference(chatroomId).add(chatMessageModel)
             .addOnCompleteListener {
                 if (it.isSuccessful) {
-                    hideKeyboard(requireActivity())
                     b.etMessage.text?.clear()
                     b.emojiEditText.text?.clear()
                     sendNotification(message)
                 }
             }
-
     }
 
     private fun sendNotification(message: String) {
         toasty(requireContext(), "Sending Notification: $message")
     }
-
 
     override fun onDestroyView() {
         _binding = null

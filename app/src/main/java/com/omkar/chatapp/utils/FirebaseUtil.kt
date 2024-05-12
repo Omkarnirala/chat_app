@@ -1,9 +1,11 @@
 package com.omkar.chatapp.utils
 
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.text.SimpleDateFormat
@@ -11,7 +13,10 @@ import java.util.Locale
 
 object FirebaseUtil {
 
+    private val mTag = "FirebaseUtil"
+
     fun currentUserId(): String? = FirebaseAuth.getInstance().uid
+    fun currentUserEmailId(): String? = FirebaseAuth.getInstance().currentUser?.email
 
     fun isLoggedIn(): Boolean = currentUserId() != null
 
@@ -19,6 +24,21 @@ object FirebaseUtil {
         FirebaseFirestore.getInstance().collection("users").document(currentUserId()!!)
 
     fun getAllUserDetails(): CollectionReference = FirebaseFirestore.getInstance().collection("users")
+
+    fun updateUserStatus(userId: String?, isOnline: Boolean) {
+        val db = FirebaseFirestore.getInstance()
+        val userStatus = hashMapOf("isOnline" to isOnline, "lastOnlineTime" to Timestamp.now())
+
+        userId?.let {
+            db.collection("users").document(it)
+                .set(userStatus, SetOptions.merge())
+                .addOnSuccessListener { log(mTag, "DocumentSnapshot successfully updated with isOnline: $isOnline") }
+                .addOnFailureListener { e -> log(mTag, "Error updating document with isOnline: $e") }
+        }
+    }
+
+    fun getOtherUserOnlineStatus(uid: String?): DocumentReference = FirebaseFirestore.getInstance().collection("users").document(uid.toString())
+
 
     fun allUserCollectionReference(): CollectionReference =
         FirebaseFirestore.getInstance().collection("users")
@@ -50,7 +70,7 @@ object FirebaseUtil {
     }
 
     fun getCurrentProfilePicStorageRef(): StorageReference =
-        FirebaseStorage.getInstance().getReference("profile_pic/${currentUserId()}")
+        FirebaseStorage.getInstance().getReference("${currentUserEmailId()}/${"Profile Pic"}")
 
     fun getOtherProfilePicStorageRef(otherUserId: String): StorageReference =
         FirebaseStorage.getInstance().getReference("$otherUserId/${"Profile Pic"}")

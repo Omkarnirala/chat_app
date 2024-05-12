@@ -18,13 +18,14 @@ import com.google.firebase.installations.FirebaseInstallations
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.omkar.chatapp.databinding.ActivityLauncherBinding
+import com.omkar.chatapp.utils.BaseAppCompatActivity
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.FormatStrategy
 import com.orhanobut.logger.Logger
 import com.orhanobut.logger.PrettyFormatStrategy
 import timber.log.Timber
 
-class LauncherActivity : AppCompatActivity() {
+class LauncherActivity : BaseAppCompatActivity() {
     private val mTag = "LauncherActivity"
     private val launcherViewModel: LauncherViewModel by viewModels()
 

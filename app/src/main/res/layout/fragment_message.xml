@@ -40,6 +40,17 @@
                 app:layout_constraintStart_toEndOf="@+id/ivBack"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <ImageView
+                android:id="@+id/status_indicator"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_marginEnd="7dp"
+                android:layout_marginBottom="13dp"
+                android:background="@drawable/online_status"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@id/ivUserImage"
+                app:layout_constraintEnd_toEndOf="@id/ivUserImage" />
+
             <TextView
                 android:id="@+id/userName"
                 android:layout_width="0dp"

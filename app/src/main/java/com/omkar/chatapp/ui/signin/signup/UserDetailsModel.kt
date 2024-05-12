@@ -1,6 +1,7 @@
 package com.omkar.chatapp.ui.signin.signup
 
 import android.os.Parcelable
+import com.google.firebase.Timestamp
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -11,7 +12,7 @@ data class UserDetailsModel(
     var profileImageUrl: String? = null,
     var status: String? = "Hey there! I am using ChatApp.",
     var lastMessage: String? = null,
-    var lastOnlineTime: Long = System.currentTimeMillis(),
-    var isOnline: Boolean? = true,
+    var lastOnlineTime: Timestamp = Timestamp.now(),
+    var isOnline: Boolean? = null
 ) : Parcelable
 

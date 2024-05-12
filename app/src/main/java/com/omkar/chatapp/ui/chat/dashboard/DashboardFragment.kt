@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
@@ -16,7 +15,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.Query
 import com.omkar.chatapp.R
 import com.omkar.chatapp.databinding.FragmentDashboardBinding
 import com.omkar.chatapp.ui.signin.signup.UserDetailsModel
@@ -27,7 +25,6 @@ import com.omkar.chatapp.utils.USER_EMAIL
 import com.omkar.chatapp.utils.getStringData
 import com.omkar.chatapp.utils.log
 import com.omkar.chatapp.utils.showInternetError
-import com.omkar.chatapp.utils.toasty
 
 class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback {
 
@@ -35,7 +32,6 @@ class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback {
 
     private var _binding: FragmentDashboardBinding? = null
     private val b get() = _binding!!
-    private lateinit var dashboardViewModel: DashboardViewModel
     private var usersAdapter: UsersAdapter? = null
     private var snackbar: Snackbar? = null
     private val auth = FirebaseAuth.getInstance()
@@ -67,37 +63,31 @@ class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback {
                 param(FirebaseAnalytics.Param.SCREEN_NAME, mTag)
             }
 
-            dashboardViewModel = ViewModelProvider(this)[DashboardViewModel::class.java]
-
-            dashboardViewModel.getCurrentUser().observe(viewLifecycleOwner) { userData ->
-                Glide.with(b.toolbar.profileImage.context).load(userData?.profileImageUrl).apply(RequestOptions().circleCrop()).into(b.toolbar.profileImage)
+            FirebaseUtil.getCurrentProfilePicStorageRef().downloadUrl.addOnCompleteListener { uri ->
+                if (uri.isSuccessful) {
+                    log(mTag, "initView: ${uri.result}")
+                    Glide.with(b.toolbar.profileImage.context).load(uri.result).apply(RequestOptions().circleCrop()).into(b.toolbar.profileImage)
+                }
             }
 
-            // Set user as online when the activity is created
-            dashboardViewModel.setUserOnlineStatus(true)
         }
     }
 
     override fun onStop() {
         super.onStop()
-
-        // Set user as offline when the activity is created
-        dashboardViewModel.setUserOnlineStatus(false)
+        usersAdapter?.stopListening()
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        // Set user as online when the activity is created
-        dashboardViewModel.setUserOnlineStatus(true)
-    }
 
     private fun getViewModelData() {
         cxt?.let { context ->
 
             val query = FirebaseUtil.getAllUserDetails().whereNotEqualTo("uid", auth.currentUser?.uid)
-            val option = FirestoreRecyclerOptions.Builder<UserDetailsModel>().setQuery(query, UserDetailsModel::class.java).build()
-            log(mTag, "setupMessagingRecyclerView: ${option.snapshots.filter {  it.uid != auth.currentUser?.uid }}")
+            val option = FirestoreRecyclerOptions.Builder<UserDetailsModel>()
+                .setQuery(query, UserDetailsModel::class.java)
+                .setLifecycleOwner(this)
+                .build()
+            log(mTag, "setupMessagingRecyclerView: ${option.snapshots.filter { it.uid != auth.currentUser?.uid }}")
 
             usersAdapter = UsersAdapter(option, this)
             b.rvUserList.apply {
@@ -106,7 +96,7 @@ class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback {
             }
 
             usersAdapter?.startListening()
-            usersAdapter?.registerAdapterDataObserver(object : AdapterDataObserver(){
+            usersAdapter?.registerAdapterDataObserver(object : AdapterDataObserver() {
                 override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                     super.onItemRangeInserted(positionStart, itemCount)
                     b.rvUserList.scrollToPosition(0)
@@ -126,7 +116,6 @@ class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback {
     }
 
     override fun onUserClickedCallBack(position: Int, user: UserDetailsModel?) {
-        toasty(requireContext(), "User Clicked: ${user?.isOnline}")
         val bundle = Bundle().apply {
             putParcelable("user", user)
         }

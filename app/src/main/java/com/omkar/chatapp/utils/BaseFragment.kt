@@ -9,6 +9,7 @@ import androidx.emoji.text.FontRequestEmojiCompatConfig
 import androidx.fragment.app.Fragment
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.ktx.Firebase
 import com.omkar.chatapp.R
@@ -19,6 +20,7 @@ open class BaseFragment : Fragment() {
 
     var firebaseAnalytics: FirebaseAnalytics? = null
     private var firebaseCrashlytics: FirebaseCrashlytics? = null
+
 
     var cxt: Context? = null
     override fun onAttach(context: Context) {
@@ -32,6 +34,7 @@ open class BaseFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         EmojiManager.install(
             GoogleCompatEmojiProvider(
                 EmojiCompat.init(
