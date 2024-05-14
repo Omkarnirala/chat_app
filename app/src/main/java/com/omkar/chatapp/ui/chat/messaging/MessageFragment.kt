@@ -240,7 +240,9 @@ class MessageFragment : BaseFragment() {
                 if (it.isSuccessful) {
                     b.etMessage.text?.clear()
                     b.emojiEditText.text?.clear()
-                    FirebaseUtil.getOtherUserOnlineStatus(receiverData?.uid)
+                    sendNotification(message, token, receiverData?.displayName)
+
+                   /* FirebaseUtil.getOtherUserOnlineStatus(receiverData?.uid)
                         .get()
                         .addOnCompleteListener { value ->
                             try {
@@ -251,7 +253,7 @@ class MessageFragment : BaseFragment() {
                             } catch (e: Exception) {
                                 log(mTag, "viewListener: $e")
                             }
-                        }
+                        }*/
                 }
             }
     }

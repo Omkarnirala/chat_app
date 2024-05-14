@@ -5,16 +5,15 @@ import android.app.NotificationManager
 import android.content.ContentResolver
 import android.content.Context
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.media.AudioAttributes
 import android.net.Uri
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.Person
-import androidx.core.content.ContextCompat.getSystemService
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.omkar.chatapp.R
+import com.omkar.chatapp.ui.signin.signup.UserDetailsModel
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
@@ -35,12 +34,30 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
         log(mTag, "notification: ${remoteMessage.notification}")
 
+        remoteMessage.data.let { data ->
+            val bodyDetails = data["body"]
+            val titleData = data["title"]
+            val priorityData = data["priority"]
+            val imageURIData = data["imageURI"]
+            val receiverData = data["receiverData"]
+            log(
+                mTag,
+                "bodyDetails: $bodyDetails\n" +
+                        "titleData: $titleData\n" +
+                        "priorityData: $priorityData\n" +
+                        "imageURIData: $imageURIData\n" +
+                        "receiverData: $receiverData\n"
+            )
+//            val userDetails = mapToUserDetailsModel(receiverData)
+
+
+
+        }
 
         // Check if message contains a notification payload.
         remoteMessage.notification?.let {
-            showNotification(it.title, it.body)
+            showNotification(it.title, it.body, remoteMessage.data.getValue("imageURI"))
         }
-
 
 
     }
@@ -61,7 +78,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         log(mTag, "Short lived task is done.")
     }
 
-    private fun showNotification(title: String?, message: String?) {
+    private fun showNotification(title: String?, message: String?, value: String) {
         log("FirebaseMessagingService", "Title: $title")
         log("FirebaseMessagingService", "Message: $message")
 
@@ -71,7 +88,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val audioAttributes = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).build()
 
         val user = Person.Builder()
-            .setUri("")
+            .setUri(value)
             .setName(title)
             .build()
 
@@ -80,18 +97,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .setLargeIcon(largeIcon)
             .setContentTitle(title)
             .setContentText(message)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
-//            .setStyle(
-//                NotificationCompat.InboxStyle()
-//                    .addLine(message)
-//            )
-//            .setStyle(NotificationCompat.MessagingStyle(user)
-//                .ad
-//                .addMessage(message, 45216L, "sjsj"))
+            .setStyle(
+                NotificationCompat.MessagingStyle(user)
+                    .addMessage(message, 45L, user)
+            )
             .setAutoCancel(true)
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
 
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -117,7 +129,20 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         notificationManager.notify(1000, notificationBuilder.build())
     }
-
+    private fun mapToUserDetailsModel(receiverData: UserDetailsModel): UserDetailsModel {
+        // Return a new instance of UserDetailsModel with data from receiverData
+        return UserDetailsModel(
+            uid = receiverData.uid,
+            email = receiverData.email,
+            displayName = receiverData.displayName,
+            profileImageUrl = receiverData.profileImageUrl,
+            status = receiverData.status,
+            lastMessage = receiverData.lastMessage,
+            lastOnlineTime = receiverData.lastOnlineTime,
+            isOnline = receiverData.isOnline,
+            token = receiverData.token
+        )
+    }
     companion object {
         private val mTag = "FirebaseMessageService"
         private const val CHANNEL_ID = "Chat Messages"
