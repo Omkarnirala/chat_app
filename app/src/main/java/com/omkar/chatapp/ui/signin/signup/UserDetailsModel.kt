@@ -13,6 +13,7 @@ data class UserDetailsModel(
     var status: String? = "Hey there! I am using ChatApp.",
     var lastMessage: String? = null,
     var lastOnlineTime: Timestamp = Timestamp.now(),
-    var isOnline: Boolean? = null
+    var isOnline: Boolean? = null,
+    var token: String? = ""
 ) : Parcelable
 

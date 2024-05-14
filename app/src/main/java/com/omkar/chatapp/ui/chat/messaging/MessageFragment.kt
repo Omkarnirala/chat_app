@@ -31,6 +31,12 @@ import com.omkar.chatapp.utils.showKeyboard
 import com.omkar.chatapp.utils.toasty
 import com.vanniktech.emoji.EmojiPopup
 import com.zegocloud.uikit.service.defines.ZegoUIKitUser
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.net.HttpURLConnection
+import java.net.URL
+import javax.net.ssl.HttpsURLConnection
 
 class MessageFragment : BaseFragment() {
 
@@ -83,7 +89,7 @@ class MessageFragment : BaseFragment() {
                             lastMessageSenderId = "",
                             lastMessage = "",
 
-                        )
+                            )
                         FirebaseUtil.getChatroomReference(chatroomId).set(chatroomModel!!)
                     }
                 } else {
@@ -185,7 +191,7 @@ class MessageFragment : BaseFragment() {
                     return@setOnClickListener
                 }
 
-                sendMessageToUser(msg)
+                sendMessageToUser(msg, receiverData?.token, receiverData?.isOnline)
 
             }
 
@@ -209,17 +215,10 @@ class MessageFragment : BaseFragment() {
                 showKeyboard(requireActivity())
             }
 
-//            b.ivAudioCall.setOnClickListener { i, s, zegoCallUsers ->
-//                setAudioCall(receiverData?.uid.toString())
-//            }
-//
-//            b.ivVideoCall.setOnClickListener { i, s, zegoCallUsers ->
-//                setVideoCall(receiverData?.uid.toString())
-//            }
         }
     }
 
-    private fun sendMessageToUser(message: String) {
+    private fun sendMessageToUser(message: String, token: String?, online: Boolean?) {
         val chatRoomModel = ChatRoomModel(
             chatroomId = chatroomId,
             userIds = listOf(FirebaseUtil.currentUserId(), receiverData?.uid),
@@ -241,37 +240,24 @@ class MessageFragment : BaseFragment() {
                 if (it.isSuccessful) {
                     b.etMessage.text?.clear()
                     b.emojiEditText.text?.clear()
-                    sendNotification(message)
+                    FirebaseUtil.getOtherUserOnlineStatus(receiverData?.uid)
+                        .get()
+                        .addOnCompleteListener { value ->
+                            try {
+                                val isOnline = value.result.getBoolean("isOnline")
+                                if (isOnline != true) {
+                                    sendNotification(message, token, receiverData?.displayName)
+                                }
+                            } catch (e: Exception) {
+                                log(mTag, "viewListener: $e")
+                            }
+                        }
                 }
             }
     }
 
-/*
-    private fun addCallFragment() {
-        val appID: Long = 1602751084
-        val appSign = "98aed2b4e01ff9affd18ae5aa05f658293d4116b1a6238939dbeb02238f487d3"
-        val callID: String = chatroomId
-        val userID: String = auth.currentUser?.uid.toString()
-        val userName: String = auth.currentUser?.displayName.toString()
-
-        // Modify your custom configurations here.
-        val callInvitationConfig = ZegoUIKitPrebuiltCallInvitationConfig()
-        callInvitationConfig.innerText.incomingCallPageDeclineButton = "Decline"
-        callInvitationConfig.innerText.incomingCallPageAcceptButton = "Accept"
-        callInvitationConfig.incomingCallRingtone = "zego_uikit_ringtone_call"
-
-//        callInvitationConfig.notificationConfig.sound = "zego_uikit_sound_call"
-//        callInvitationConfig.notificationConfig.channelID = "CallInvitation"
-//        callInvitationConfig.notificationConfig.channelName = "CallInvitation"
-        ZegoUIKitPrebuiltCallService.init(activity?.application, appID, appSign, userID, userName, callInvitationConfig);
-
-    }
-*/
 
     private fun setAudioCall(targetUserId: String) {
-//        b.ivAudioCall.setIsVideoCall(false)
-//        b.ivAudioCall.resourceID = "zego_uikit_call"
-//        b.ivAudioCall.setInvitees(Collections.singletonList(ZegoUIKitUser(targetUserId)))
 
         val newVoiceCall = b.ivAudioCall
         newVoiceCall.setIsVideoCall(false)
@@ -288,8 +274,7 @@ class MessageFragment : BaseFragment() {
         newVoiceCall.setInvitees(users)
     }
 
-
-    private fun setVideoCall(targetUserId: String){
+    private fun setVideoCall(targetUserId: String) {
 
         val newVideoCall = b.ivVideoCall
         newVideoCall.setIsVideoCall(true)
@@ -307,11 +292,68 @@ class MessageFragment : BaseFragment() {
             }
             newVideoCall.setInvitees(users)
         }
-
     }
 
-    private fun sendNotification(message: String) {
-        toasty(requireContext(), "Sending Notification: $message")
+    private fun sendNotification(fcmMessage: String, fcmToken: String?, userName: String?) {
+        toasty(requireContext(), "Sending Notification: $fcmMessage")
+        CoroutineScope(Dispatchers.IO).launch {
+            // Executes the network request on a background thread
+            try {
+                val url = URL("https://fcm.googleapis.com/fcm/send")
+                val conn = url.openConnection() as HttpsURLConnection
+                conn.apply {
+                    readTimeout = 10000
+                    connectTimeout = 15000
+                    requestMethod = "POST"
+                    doInput = true
+                    doOutput = true
+
+                    // Set headers
+                    setRequestProperty("Content-Type", "application/json")
+                    setRequestProperty(
+                        "Authorization",
+                        "key=AAAANOcCEhE:APA91bFgDmHMfrToJ-cdxuyzbC6JS7FRpBghMqzyfMYmadJHNuBDMzOmi78UlCS5tSOQgIZtEsJzPVGZht3qSP8419AuMDYZVsAGyqoPTqVXLhSsS2B3ULCOM2coQvKTjRwuwgFJmiqA"
+                    ) // Replace YOUR_SERVER_KEY with your actual FCM server key
+
+                    // Create the JSON payload
+                    val jsonPayload = """
+                {
+                    "to": "$fcmToken",
+                    "data": {
+                        "body": "$fcmMessage",
+                        "title": "$userName",
+                        "priority": "high",
+                        "imageURI":"${receiverData?.profileImageUrl}",
+                        "receiverData":"$receiverData"
+                    },
+                    "notification": {
+                        "body": "$fcmMessage",
+                        "title": "$userName",
+                        "priority": "high"
+                    }
+                }
+                """.trimIndent()
+
+                    // Send FCM message content.
+                    outputStream.use { os ->
+                        os.write(jsonPayload.toByteArray(charset("UTF-8")))
+                    }
+
+                    // Read FCM server response.
+                    val responseCode = responseCode
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        val response = inputStream.bufferedReader().use { it.readText() }
+                        log(mTag, "Response: $response")
+//                        println("Response: $response")
+                    } else {
+                        log(mTag, "FCM request failed with response code $responseCode")
+//                        println("FCM request failed with response code $responseCode")
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     override fun onDestroyView() {

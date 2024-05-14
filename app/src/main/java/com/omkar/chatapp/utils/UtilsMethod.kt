@@ -7,12 +7,15 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
+import android.provider.Settings
 import android.util.Log
 import android.util.Patterns
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.NotificationManagerCompat
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.omkar.chatapp.BuildConfig
@@ -478,6 +481,32 @@ fun formatTimestampTo12Hour(timestamp: com.google.firebase.Timestamp?): String {
     val date: Date = inputFormat.parse(inputFormat.toString()) ?: throw IllegalArgumentException("Invalid date") // Convert Timestamp to java.util.Date
     val formatter = SimpleDateFormat("hh:mm a", Locale.ENGLISH)
     return formatter.format(date.toString())
+}
+
+fun getTimeAgo(time: com.google.firebase.Timestamp): String {
+    val now = System.currentTimeMillis()
+    val timeMillis = time.seconds * 1000 + time.nanoseconds / 1000000 // Convert Timestamp to milliseconds
+    val diff = now - timeMillis // Calculate the difference in milliseconds
+    return when {
+        diff < 60000 -> "just now"
+        diff < 3600000 -> "${diff / 60000} min ago"
+        diff < 86400000 -> "${diff / 3600000} hrs ago"
+        else -> "${diff / 86400000} days ago"
+    }
+}
+
+fun requestNotificationPermission(activity: Activity, resultLauncher: ActivityResultLauncher<Intent>) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (!NotificationManagerCompat.from(activity).areNotificationsEnabled()) {
+            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                putExtra(Settings.EXTRA_APP_PACKAGE, activity.packageName)
+            }
+            resultLauncher.launch(intent)
+        }
+    } else {
+        // For Android versions lower than 13, notifications are enabled by default.
+        // You can handle older Android versions’ notification channel settings here if necessary.
+    }
 }
 
 /*

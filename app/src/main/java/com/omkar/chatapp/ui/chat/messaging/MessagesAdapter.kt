@@ -6,14 +6,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
-import com.google.firebase.Timestamp
 import com.omkar.chatapp.databinding.MessageBinding
 import com.omkar.chatapp.utils.FirebaseUtil
 import com.omkar.chatapp.utils.FirebaseUtil.timestampToString
-import com.omkar.chatapp.utils.formatTimestampTo12Hour
 import com.omkar.chatapp.utils.log
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class MessagesAdapter(
     options: FirestoreRecyclerOptions<ChatMessageModel>,

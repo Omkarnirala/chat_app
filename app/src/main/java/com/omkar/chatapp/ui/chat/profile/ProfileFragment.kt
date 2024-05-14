@@ -148,8 +148,7 @@ class ProfileFragment : BaseFragment() {
 
     private fun viewListener() {
         cxt?.let { context ->
-            b.toolbar.tvTitle.text = getString(R.string.profile)
-            b.toolbar.backButton.setOnClickListener {
+            b.ivBack.setOnClickListener {
                 findNavController().navigateUp()
             }
 
@@ -181,7 +180,7 @@ class ProfileFragment : BaseFragment() {
                 )
             }
 
-            b.toolbar.tvLogout.setOnClickListener {
+            b.ivLogout.setOnClickListener {
                 FirebaseUtil.logout()
                 logoutMethod(context)
             }

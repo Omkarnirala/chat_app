@@ -5,6 +5,7 @@ import android.app.Application
 import android.os.Bundle
 import com.elvishew.xlog.XLog
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.messaging.FirebaseMessaging
 import com.omkar.chatapp.utils.BaseAppCompatActivity
 import com.omkar.chatapp.utils.FirebaseUtil
 import com.omkar.chatapp.utils.timberLog

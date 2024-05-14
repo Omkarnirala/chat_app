@@ -15,7 +15,7 @@ object FirebaseUtil {
 
     private val mTag = "FirebaseUtil"
 
-    fun currentUserId(): String? = FirebaseAuth.getInstance().uid
+    fun currentUserId(): String? = FirebaseAuth.getInstance().currentUser?.uid
     fun currentUserEmailId(): String? = FirebaseAuth.getInstance().currentUser?.email
 
     fun isLoggedIn(): Boolean = currentUserId() != null
@@ -57,6 +57,19 @@ object FirebaseUtil {
         }
     }
 
+    fun updateUserToken(userId: String?, token: String){
+        //"token" to FirebaseMessaging.getInstance().token
+        val db = FirebaseFirestore.getInstance()
+        val userStatus = hashMapOf("token" to token)
+
+        userId?.let {
+            db.collection("users").document(it)
+                .set(userStatus, SetOptions.merge())
+                .addOnSuccessListener { log(mTag, "DocumentSnapshot successfully updated with token: $token") }
+                .addOnFailureListener { e -> log(mTag, "Error updating document with isOnline: $e") }
+        }
+    }
+
     fun getOtherUserOnlineStatus(uid: String?): DocumentReference = FirebaseFirestore.getInstance().collection("users").document(uid.toString())
 
     fun allUserCollectionReference(): CollectionReference =
@@ -74,11 +87,11 @@ object FirebaseUtil {
     fun allChatroomCollectionReference(): CollectionReference =
         FirebaseFirestore.getInstance().collection("chatrooms")
 
-    fun getOtherUserFromChatroom(userIds: List<String>): DocumentReference =
-        if (userIds[0] == currentUserId()) {
-            allUserCollectionReference().document(userIds[1])
+    fun getOtherUserFromChatroom(userIds: List<String?>?): DocumentReference =
+        if (userIds?.get(0) == currentUserId()) {
+            allUserCollectionReference().document(userIds?.get(1).toString())
         } else {
-            allUserCollectionReference().document(userIds[0])
+            allUserCollectionReference().document(userIds?.get(0).toString())
         }
 
     fun timestampToString(timestamp: Timestamp): String =

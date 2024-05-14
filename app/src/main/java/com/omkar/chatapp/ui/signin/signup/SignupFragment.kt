@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
+import com.google.firebase.messaging.FirebaseMessaging
 import com.omkar.chatapp.LauncherViewModel
 import com.omkar.chatapp.R
 import com.omkar.chatapp.databinding.FragmentSignupBinding
@@ -125,14 +126,14 @@ class SignupFragment : BaseFragment() {
                             // Handle successful sign-up, and use user if needed
                             timberLog(mTag, "getViewModelData: ${result.user}")
 
-
                             result.user.let {
                                 val user = UserDetailsModel(
                                     uid = it.uid,
                                     email = it.email,
                                     displayName = it.displayName,
                                     profileImageUrl = it.photoUrl?.toString(),
-                                    isOnline = true
+                                    isOnline = true,
+                                    token = FirebaseMessaging.getInstance().token.result
                                 )
                                 authViewModel.addUserToFirestore(user)
                                 setBooleanData(context, IS_LOGIN, true)
@@ -166,11 +167,9 @@ class SignupFragment : BaseFragment() {
 
     private fun viewListener() {
         cxt?.let { context ->
-            b.include.backButton.setOnClickListener {
+            b.ivBack.setOnClickListener {
                 findNavController().navigateUp()
             }
-
-            b.include.tvTitle.setText(R.string.sign_up)
 
             b.passwordEditText.setOnEditorActionListener { _, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_DONE) b.signUpButton.performClick()

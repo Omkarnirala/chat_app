@@ -7,6 +7,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.signin.splash.SplashFragment">
 
+<!--
     <ImageView
         android:id="@+id/ivLogo"
         android:layout_width="180dp"
@@ -28,5 +29,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

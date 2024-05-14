@@ -7,7 +7,11 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import coil.ImageLoader
 import coil.decode.GifDecoder
@@ -24,6 +28,7 @@ import com.omkar.chatapp.utils.isGooglePlayServicesAvailable
 import com.omkar.chatapp.utils.log
 import com.omkar.chatapp.utils.loginMethod
 import com.omkar.chatapp.utils.showCustomAlertDialog
+import kotlinx.coroutines.launch
 
 class SplashFragment : BaseFragment() {
 
@@ -45,28 +50,7 @@ class SplashFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        animateLogo()
         getViewModelData()
-
-        getVersionName(cxt).let {
-            b.tvVersion.text = getString(R.string.version, it)
-        }
-    }
-
-    private fun animateLogo() {
-        try {
-            val imageLoader = ImageLoader.Builder(requireContext()).componentRegistry {
-                if (Build.VERSION.SDK_INT >= 28) {
-                    add(ImageDecoderDecoder())
-                } else {
-                    add(GifDecoder())
-                }
-            }.build()
-            b.ivLogo.load(R.drawable.ic_launcher_foreground, imageLoader)
-        } catch (e: Throwable) {
-            log(mTag, "catch error = ${e.message}")
-        }
     }
 
     private fun getViewModelData() {
@@ -105,51 +89,22 @@ class SplashFragment : BaseFragment() {
         cxt?.let { context ->
 
             if (isGooglePlayServicesAvailable(requireActivity(), context)) {
-                Handler(Looper.getMainLooper()).postDelayed({
-                    getBooleanData(context, IS_LOGIN).let { loginStatus ->
-                        if (loginStatus) {
-                            loginMethod(context)//SplashFragment //checkForLoginStatus
-                        } else {
-                            //if not logged in
-                            try {
-                                findNavController().navigate(SplashFragmentDirections.actionSplashFragmentToSignInFragment())
-                            } catch (e: Throwable) {
-                                log(mTag, "catch error = ${e.message}")
-                            }
+                getBooleanData(context, IS_LOGIN).let { loginStatus ->
+                    if (loginStatus) {
+                        loginMethod(context)//SplashFragment //checkForLoginStatus
+
+                    } else {
+                        //if not logged in
+                        try {
+                            findNavController().navigate(SplashFragmentDirections.actionSplashFragmentToSignInFragment())
+                        } catch (e: Throwable) {
+                            log(mTag, "catch error = ${e.message}")
                         }
                     }
-                },1000)
-
+                }
             }
         }
 
-    }
-
-    private fun checkForLoginStatusDemo() {
-
-        cxt?.let { context ->
-
-            if (isGooglePlayServicesAvailable(requireActivity(), context)) {
-                Handler(Looper.getMainLooper()).postDelayed({
-                    getBooleanData(context, IS_LOGIN).let { loginStatus ->
-                        if (loginStatus) {
-                            //if already logged in
-                            /* val i = Intent(requireContext(), MainActivity::class.java)
-                             i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                             startActivity(i)*/
-                            loginMethod(context)//SplashFragment //checkForLoginStatusDemo
-                        } else {
-                            //if not logged in
-                            try {
-                                findNavController().navigate(SplashFragmentDirections.actionSplashFragmentToSignInFragment())
-                            } catch (e: Throwable) {
-                                log(mTag, "catch error = ${e.message}")
-                            }
-                        }
-                    }
-                }, 2000)
-            }
-        }
     }
 
     override fun onDestroyView() {

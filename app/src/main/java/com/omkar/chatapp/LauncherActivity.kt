@@ -6,6 +6,10 @@ import android.net.NetworkRequest
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.omkar.chatapp.utils.FIREBASE_INSTANCE_ID
 import com.omkar.chatapp.utils.FirebaseEvent
 import com.omkar.chatapp.utils.log
@@ -23,6 +27,7 @@ import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.FormatStrategy
 import com.orhanobut.logger.Logger
 import com.orhanobut.logger.PrettyFormatStrategy
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class LauncherActivity : BaseAppCompatActivity() {
@@ -48,19 +53,34 @@ class LauncherActivity : BaseAppCompatActivity() {
         }
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        setupSplashScreen()
         super.onCreate(savedInstanceState)
         b = ActivityLauncherBinding.inflate(layoutInflater)
         setContentView(b.root)
         connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkRequest = NetworkRequest.Builder().build()
         connectivityManager?.registerNetworkCallback(networkRequest, networkCallback)
-
         initView()
         setupAdvertisingInfo()
         setupFirebase()
+    }
 
+    private fun setupSplashScreen() {
+        var keepSplashScreenOn = true
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launcherViewModel.getInternetStatus().observe(this@LauncherActivity) { uiState ->
+                    if (uiState == true){
+                        keepSplashScreenOn = false
+                    }
+                }
+            }
+        }
+
+        installSplashScreen().setKeepOnScreenCondition {
+            keepSplashScreenOn
+        }
     }
 
     private fun initView() {
@@ -81,12 +101,13 @@ class LauncherActivity : BaseAppCompatActivity() {
 
         Logger.addLogAdapter(AndroidLogAdapter(formatStrategy))
 
-        Timber.plant(object : Timber.DebugTree(){
+        Timber.plant(object : Timber.DebugTree() {
             override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
                 super.log(priority, tag, message, t)
                 Logger.log(priority, "-$tag", message, t)
             }
         })
+
     }
 
     private fun setupAdvertisingInfo() {

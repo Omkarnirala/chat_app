@@ -57,5 +57,10 @@
     <string name="receiver_message">Receiver Message</string>
     <string name="time">2:00 AM</string>
     <string name="sender_message">Sender Message</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="user_profile">User Profile</string>
+    <string name="chat">Chat</string>
+    <string name="all_users">All Users</string>
+    <string name="your_message">You: %1$s</string>
 
 </resources>
