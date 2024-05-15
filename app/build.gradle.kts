@@ -100,8 +100,11 @@ dependencies {
 //    implementation ("androidx.camera:camera-view:1.2.0-alpha01")
 //
     implementation("com.github.dhaval2404:imagepicker:2.1")
-    implementation("com.vanniktech:emoji-google-compat:0.18.0")
+//    implementation("com.vanniktech:emoji-google-compat:0.18.0")
 
     implementation("com.github.ZEGOCLOUD:zego_uikit_prebuilt_call_android:+")
+
+    implementation("com.google.code.gson:gson:2.10.1")
+
 
 }

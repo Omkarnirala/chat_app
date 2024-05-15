@@ -17,6 +17,8 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.toObject
+import com.google.gson.Gson
 import com.omkar.chatapp.R
 import com.omkar.chatapp.databinding.FragmentMessageBinding
 import com.omkar.chatapp.ui.signin.signup.UserDetailsModel
@@ -27,9 +29,7 @@ import com.omkar.chatapp.utils.USER_EMAIL
 import com.omkar.chatapp.utils.getStringData
 import com.omkar.chatapp.utils.log
 import com.omkar.chatapp.utils.showInternetError
-import com.omkar.chatapp.utils.showKeyboard
 import com.omkar.chatapp.utils.toasty
-import com.vanniktech.emoji.EmojiPopup
 import com.zegocloud.uikit.service.defines.ZegoUIKitUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,9 +50,12 @@ class MessageFragment : BaseFragment() {
     private var snackbar: Snackbar? = null
     private lateinit var messagesAdapter: MessagesAdapter
     private var receiverData: UserDetailsModel? = null
+    private var currentData: UserDetailsModel? = null
     private val auth = FirebaseAuth.getInstance()
-    private var emojiPopup: EmojiPopup? = null
+//    private var emojiPopup: EmojiPopup? = null
     private var chatroomModel: ChatRoomModel? = null
+    private val messages = mutableListOf<Message>()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -119,7 +122,11 @@ class MessageFragment : BaseFragment() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, itemCount)
                 log(mTag, "onItemRangeInserted: $itemCount")
-                b.rvMessage.smoothScrollToPosition(0)
+                try {
+                    b.rvMessage.smoothScrollToPosition(0)
+                } catch (e: Exception) {
+                    log(mTag, "Exception: $e")
+                }
             }
 
         })
@@ -138,6 +145,21 @@ class MessageFragment : BaseFragment() {
             receiverData = arguments?.getParcelable("user")
             log(mTag, "Receiver Data: $receiverData")
             chatroomId = FirebaseUtil.getChatroomId(FirebaseUtil.currentUserId()!!, receiverData?.uid.toString())
+
+            FirebaseUtil.currentUserDetails()
+                .get()
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        val document = it.result
+                        if (document != null) {
+                            currentData = it.result.toObject()
+                            log(mTag, "currentData: $currentData")
+                        }
+                    }
+                }
+                .addOnFailureListener {exception ->
+                    log(mTag, "currentUserName Error getting document: $exception")
+                }
 
         }
     }
@@ -186,35 +208,14 @@ class MessageFragment : BaseFragment() {
             b.ivSend.setOnClickListener {
 
                 val msg = b.etMessage.text.toString().trim()
-                val emoji = b.emojiEditText.text.toString().trim()
-                if (b.etMessage.text.toString().trim().isEmpty() && b.emojiEditText.text.toString().trim().isEmpty()) {
+//                val emoji = b.emojiEditText.text.toString().trim()
+                if (b.etMessage.text.toString().trim().isEmpty() /*&& b.emojiEditText.text.toString().trim().isEmpty()*/) {
                     return@setOnClickListener
                 }
 
                 sendMessageToUser(msg, receiverData?.token, receiverData?.isOnline)
 
             }
-
-            b.ivEmoji.setOnClickListener {
-                b.etMessage.visibility = View.INVISIBLE
-                b.emojiEditText.visibility = View.VISIBLE
-                b.ivKeyboard.visibility = View.VISIBLE
-                b.ivEmoji.visibility = View.INVISIBLE
-                emojiPopup = EmojiPopup(it, b.emojiEditText)
-                emojiPopup?.toggle() // Toggles visibility of the Popup.
-            }
-
-            b.ivKeyboard.setOnClickListener {
-                b.etMessage.visibility = View.VISIBLE
-                b.emojiEditText.visibility = View.INVISIBLE
-                b.ivKeyboard.visibility = View.INVISIBLE
-                b.ivEmoji.visibility = View.VISIBLE
-                if (emojiPopup?.isShowing == true) {
-                    emojiPopup?.dismiss()
-                }
-                showKeyboard(requireActivity())
-            }
-
         }
     }
 
@@ -239,16 +240,18 @@ class MessageFragment : BaseFragment() {
             .addOnCompleteListener {
                 if (it.isSuccessful) {
                     b.etMessage.text?.clear()
-                    b.emojiEditText.text?.clear()
-                    sendNotification(message, token, receiverData?.displayName)
-
-                   /* FirebaseUtil.getOtherUserOnlineStatus(receiverData?.uid)
+                    messages.add(Message(message, System.currentTimeMillis(), currentData?.displayName.toString()))
+                    sendNotification(messages, token, currentData?.displayName)
+                    /*FirebaseUtil.getOtherUserOnlineStatus(receiverData?.uid)
                         .get()
                         .addOnCompleteListener { value ->
                             try {
                                 val isOnline = value.result.getBoolean("isOnline")
                                 if (isOnline != true) {
-                                    sendNotification(message, token, receiverData?.displayName)
+                                    messages.add(Message(message, System.currentTimeMillis(), currentData?.displayName.toString()))
+                                    sendNotification(messages, token, currentData?.displayName)
+                                } else {
+                                    messages.clear()
                                 }
                             } catch (e: Exception) {
                                 log(mTag, "viewListener: $e")
@@ -296,13 +299,19 @@ class MessageFragment : BaseFragment() {
         }
     }
 
-    private fun sendNotification(fcmMessage: String, fcmToken: String?, userName: String?) {
+    private fun sendNotification(fcmMessage: MutableList<Message>, fcmToken: String?, userName: String?) {
         toasty(requireContext(), "Sending Notification: $fcmMessage")
         CoroutineScope(Dispatchers.IO).launch {
             // Executes the network request on a background thread
             try {
                 val url = URL("https://fcm.googleapis.com/fcm/send")
                 val conn = url.openConnection() as HttpsURLConnection
+                // Create the JSON payload
+                val gson = Gson()
+                val json = gson.toJson(currentData)
+                val jsonMessages = gson.toJson(fcmMessage)
+                log(mTag, "fcmMessage: $jsonMessages")
+                log(mTag, json)
                 conn.apply {
                     readTimeout = 10000
                     connectTimeout = 15000
@@ -317,25 +326,18 @@ class MessageFragment : BaseFragment() {
                         "key=AAAANOcCEhE:APA91bFgDmHMfrToJ-cdxuyzbC6JS7FRpBghMqzyfMYmadJHNuBDMzOmi78UlCS5tSOQgIZtEsJzPVGZht3qSP8419AuMDYZVsAGyqoPTqVXLhSsS2B3ULCOM2coQvKTjRwuwgFJmiqA"
                     ) // Replace YOUR_SERVER_KEY with your actual FCM server key
 
-                    // Create the JSON payload
                     val jsonPayload = """
                 {
                     "to": "$fcmToken",
                     "data": {
-                        "body": "$fcmMessage",
+                        "body": $jsonMessages,
                         "title": "$userName",
                         "priority": "high",
-                        "imageURI":"${receiverData?.profileImageUrl}",
-                        "receiverData":"$receiverData"
-                    },
-                    "notification": {
-                        "body": "$fcmMessage",
-                        "title": "$userName",
-                        "priority": "high"
+                        "receiverData":${json}
                     }
                 }
                 """.trimIndent()
-
+                    log(mTag, "jsonPayload: $jsonPayload")
                     // Send FCM message content.
                     outputStream.use { os ->
                         os.write(jsonPayload.toByteArray(charset("UTF-8")))
@@ -346,7 +348,7 @@ class MessageFragment : BaseFragment() {
                     if (responseCode == HttpURLConnection.HTTP_OK) {
                         val response = inputStream.bufferedReader().use { it.readText() }
                         log(mTag, "Response: $response")
-//                        println("Response: $response")
+                        println("Response: $response")
                     } else {
                         log(mTag, "FCM request failed with response code $responseCode")
 //                        println("FCM request failed with response code $responseCode")
@@ -357,6 +359,7 @@ class MessageFragment : BaseFragment() {
             }
         }
     }
+
 
     override fun onDestroyView() {
         _binding = null

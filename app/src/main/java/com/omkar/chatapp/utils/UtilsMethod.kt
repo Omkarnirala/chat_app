@@ -18,6 +18,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationManagerCompat
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.firebase.Timestamp
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.omkar.chatapp.BuildConfig
 import com.omkar.chatapp.LauncherActivity
 import com.omkar.chatapp.MainActivity
@@ -507,6 +510,13 @@ fun requestNotificationPermission(activity: Activity, resultLauncher: ActivityRe
         // For Android versions lower than 13, notifications are enabled by default.
         // You can handle older Android versions’ notification channel settings here if necessary.
     }
+}
+
+// Register the serializer in the Gson instance
+fun getGsonInstance(): Gson {
+    return GsonBuilder()
+        .registerTypeAdapter(Timestamp::class.java, TimestampSerializer())
+        .create()
 }
 
 /*

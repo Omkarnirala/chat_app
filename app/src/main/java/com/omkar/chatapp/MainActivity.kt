@@ -8,6 +8,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
 import com.omkar.chatapp.utils.BaseAppCompatActivity
 import com.omkar.chatapp.utils.FirebaseUtil
+import com.omkar.chatapp.utils.log
 import com.omkar.chatapp.utils.timberLog
 import com.permissionx.guolindev.PermissionX
 import com.zegocloud.uikit.plugin.invitation.ZegoInvitationType
@@ -45,7 +46,7 @@ class MainActivity : BaseAppCompatActivity() {
                 }
             }
             .addOnFailureListener {exception ->
-                com.omkar.chatapp.utils.log(mTAG, "currentUserName Error getting document: $exception")
+                log(mTAG, "currentUserName Error getting document: $exception")
             }
     }
 
