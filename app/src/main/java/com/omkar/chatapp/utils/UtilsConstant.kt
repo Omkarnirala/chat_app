@@ -17,3 +17,4 @@ const val RATIO_16_9_VALUE = 16.0 / 9.0
 
 const val SWITCH_ON = "1"
 const val SWITCH_OFF = "0"
+

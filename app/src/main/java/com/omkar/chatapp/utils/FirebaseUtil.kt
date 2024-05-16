@@ -1,5 +1,6 @@
 package com.omkar.chatapp.utils
 
+import androidx.core.app.NotificationCompat
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
@@ -17,6 +18,8 @@ object FirebaseUtil {
 
     fun currentUserId(): String? = FirebaseAuth.getInstance().currentUser?.uid
     fun currentUserEmailId(): String? = FirebaseAuth.getInstance().currentUser?.email
+
+    val notificationBuilders = mutableMapOf<String, NotificationCompat.Builder>()
 
     fun isLoggedIn(): Boolean = currentUserId() != null
 
@@ -52,7 +55,10 @@ object FirebaseUtil {
         userId?.let {
             db.collection("users").document(it)
                 .set(userStatus, SetOptions.merge())
-                .addOnSuccessListener { log(mTag, "DocumentSnapshot successfully updated with isOnline: $isOnline") }
+                .addOnSuccessListener {
+                    notificationBuilders.clear()
+                    log(mTag, "DocumentSnapshot successfully updated with isOnline: $isOnline")
+                }
                 .addOnFailureListener { e -> log(mTag, "Error updating document with isOnline: $e") }
         }
     }

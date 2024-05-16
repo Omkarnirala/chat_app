@@ -1,25 +1,22 @@
 package com.omkar.chatapp.utils
 
 import android.Manifest
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.media.AudioAttributes
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import androidx.appcompat.resources.Compatibility.Api18Impl.setAutoCancel
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
-import androidx.core.graphics.drawable.IconCompat
 import androidx.navigation.NavDeepLinkBuilder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
@@ -32,6 +29,7 @@ import com.omkar.chatapp.MainActivity
 import com.omkar.chatapp.R
 import com.omkar.chatapp.ui.chat.messaging.Message
 import com.omkar.chatapp.ui.signin.signup.UserDetailsModel
+import com.omkar.chatapp.utils.FirebaseUtil.notificationBuilders
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
@@ -40,7 +38,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     companion object {
         private val mTag = "FirebaseMessageService"
         private const val CHANNEL_ID = "Chat Messages"
-        const val GROUP_KEY_WORK_EMAIL = "com.android.example.WORK_EMAIL"
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -77,76 +74,92 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
             log(mTag, "userDetails of Receiver Data: ${userDetails.status}")
 
-//            showNotification(userDetails.displayName, messages, userDetails.profileImageUrl.toString(), userDetails)
-
-/*            showNewNotification(
-                context,
-                userDetails.displayName,
-                messages,
-                userDetails.profileImageUrl.toString(),
-                userDetails
-            )*/
-
-            sendNoti()
+            showNotification(messages, userDetails)
 
         }
 
     }
 
-    private fun sendNoti() {
-        val SUMMARY_ID = 0
-        val GROUP_KEY_WORK_EMAIL = "com.android.example.WORK_EMAIL"
+    private fun showNotification(
+        messages: List<Message>,
+        userDetails: UserDetailsModel,
+    ) {
 
-        val newMessageNotification1 = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.app_logo)
-            .setContentTitle("emailObject1.getSummary()")
-            .setContentText("You will not believe...")
-            .setStyle(NotificationCompat.InboxStyle()
-                .addLine("Alex Faarborg Check this out")
-                .addLine("Jeff Chang Launch Party")
-                .setBigContentTitle("2 new messages")
-                .setSummaryText("janedoe@example.com"))
-            .setGroup(GROUP_KEY_WORK_EMAIL)
-            .build()
+        log(mTag, "Title: ${userDetails.displayName}")
+        log(mTag, "Message: $messages")
 
-        val newMessageNotification2 = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.app_logo)
-            .setContentTitle("emailObject2.getSummary()")
-            .setContentText("Please join us to celebrate the...")
-            .setStyle(NotificationCompat.InboxStyle()
-                .addLine("Alex Faarborg Check this out")
-                .addLine("Jeff Chang Launch Party")
-                .setBigContentTitle("2 new messages")
-                .setSummaryText("janedoe@example.com"))
-            .setGroup(GROUP_KEY_WORK_EMAIL)
-            .build()
+        val soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + this.packageName + "/" + R.raw.notification)
 
-        val summaryNotification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("emailObject.getSummary()")
-            // Set content text to support devices running API level < 24.
-            .setContentText("Two new messages")
-            .setSmallIcon(R.drawable.app_logo)
-            // Specify which group this notification belongs to.
-            .setGroup(GROUP_KEY_WORK_EMAIL)
-            // Set this notification as the summary for the group.
-            .setGroupSummary(true)
-            .build()
-
-        NotificationManagerCompat.from(this).apply {
-            if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return
-            }
-            notify(1, newMessageNotification1)
-            notify(2, newMessageNotification2)
-            notify(SUMMARY_ID, summaryNotification)
+        val bundle = Bundle().apply {
+            putParcelable("user", userDetails)
         }
+        val pendingIntent = NavDeepLinkBuilder(applicationContext).setComponentName(MainActivity::class.java).setGraph(R.navigation.main_navigation)
+            .setDestination(R.id.messageFragment).setArguments(bundle).createPendingIntent()
+
+        Glide.with(applicationContext).asBitmap().load(userDetails.profileImageUrl).into(object : CustomTarget<Bitmap>() {
+            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+
+                messages.forEach { message ->
+
+                    val contentTitle = if (messages.size == 1) {
+                        "New message from ${message.person}"
+                    } else {
+                        "${messages.size} new messages from ${message.person}"
+                    }
+                    log(mTag, "message.text: ${message.text}")
+                    log(mTag, "contentTitle: $contentTitle")
+
+                    val messagingStyle = NotificationCompat.InboxStyle()
+                    messages.forEach {
+                        messagingStyle.addLine(it.text)
+                        messagingStyle.setBigContentTitle(contentTitle)
+                        messagingStyle.setSummaryText(message.person)
+                    }
+
+                    val builder = notificationBuilders.getOrPut(message.person) {
+                        NotificationCompat.Builder(applicationContext, CHANNEL_ID)
+                            .setSmallIcon(R.drawable.app_logo)
+                            .setLargeIcon(resource)
+                            .setSound(soundUri)
+                            .setStyle(
+                                NotificationCompat.InboxStyle()
+                            )
+                            .setAutoCancel(true)
+                            .setContentIntent(pendingIntent)
+                    }
+
+                    builder.setContentText(messages.last().text)
+                        .setContentTitle(contentTitle)
+                        .setStyle(messagingStyle)
+
+                    notificationBuilders[message.person] = builder
+
+                }
+
+                NotificationManagerCompat.from(applicationContext).apply {
+                    if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                        return
+                    }
+                    notificationBuilders.forEach { (person, builder) ->
+                        log(mTag, "notificationBuilders.notify ID: ${person.hashCode()}")
+                        log(mTag, "notificationBuilders.notify Builder: $builder")
+                        notify(person.hashCode(), builder.build())
+                    }
+                }
+            }
+
+            override fun onLoadCleared(placeholder: Drawable?) {
+                TODO("Not yet implemented")
+            }
+
+        })
     }
 
     override fun onNewToken(token: String) {
@@ -163,153 +176,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     private fun handleNow() {
         log(mTag, "Short lived task is done.")
-    }
-
-    private fun showNewNotification(
-        context: Context?,
-        userName: String?,
-        messages: List<Message>,
-        avatarUrl: String,
-        userDetails: UserDetailsModel,
-    ) {
-        log("FirebaseMessagingService", "Title: $userName")
-        log("FirebaseMessagingService", "Message: $messages")
-
-        val notificationManager = context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        val contentTitle = if (messages.size == 1) {
-            "New message from $userName"
-        } else {
-            "${messages.size} new messages from $userName"
-        }
-
-        val messagingStyle = NotificationCompat.InboxStyle()
-        messages.forEach {
-            messagingStyle.addLine(it.text)
-        }
-
-        val soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + this.packageName + "/" + R.raw.notification)
-        val audioAttributes = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).build()
-
-        val bundle = Bundle().apply {
-            putParcelable("user", userDetails)
-        }
-        val pendingIntent = NavDeepLinkBuilder(applicationContext).setComponentName(MainActivity::class.java).setGraph(R.navigation.main_navigation)
-            .setDestination(R.id.messageFragment).setArguments(bundle).createPendingIntent()
-
-        Glide.with(context).asBitmap().load(avatarUrl).into(object : CustomTarget<Bitmap>() {
-            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
-                    .setSmallIcon(R.drawable.app_logo)
-                    .setContentTitle(contentTitle)
-                    .setLargeIcon(resource)
-                    .setStyle(messagingStyle)
-                    .setAutoCancel(true)
-                    .setGroup(GROUP_KEY_WORK_EMAIL)
-                    .setContentIntent(pendingIntent)
-
-                notificationBuilder.setGroupSummary(true)
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    val channel = NotificationChannel(CHANNEL_ID, userName, NotificationManager.IMPORTANCE_HIGH).apply {
-                        enableLights(true)
-                        enableVibration(true)
-                        setSound(soundUri, audioAttributes)
-                    }
-                    notificationManager.createNotificationChannel(channel)
-                } else {
-                    notificationBuilder.setSound(soundUri)
-                }
-
-                notificationManager.notify(1000, notificationBuilder.build())
-            }
-
-            override fun onLoadCleared(placeholder: Drawable?) {
-                log("FirebaseMessagingService", "onLoadCleared: $placeholder")
-            }
-        })
-    }
-
-    private fun showNotification(userName: String?, message: List<Message>, value: String, userDetails: UserDetailsModel) {
-        log("FirebaseMessagingService", "Title: $userName")
-        log("FirebaseMessagingService", "Message: $message")
-
-        val bundle = Bundle().apply {
-            putParcelable("user", userDetails)
-        }
-
-        val pendingIntent = NavDeepLinkBuilder(applicationContext).setComponentName(MainActivity::class.java).setGraph(R.navigation.main_navigation)
-            .setDestination(R.id.messageFragment).setArguments(bundle).createPendingIntent()
-
-        val channelId = CHANNEL_ID
-        val soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + this.packageName + "/" + R.raw.notification)
-        val audioAttributes = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).build()
-
-        val user = Person.Builder()
-            .setUri(value)
-            .setName(userName)
-            .build()
-
-        val contentTitle = if (message.size == 1) {
-            "New Message from $userName"
-        } else {
-            "${message.size} new message from $userName"
-        }
-
-        val messagingStyle = NotificationCompat.InboxStyle()
-        message.forEach {
-            messagingStyle.addLine(it.text)
-        }
-
-        var notificationBuilder: NotificationCompat.Builder
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        Glide.with(context!!).asBitmap().load(value).into(object : CustomTarget<Bitmap>() {
-            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                notificationBuilder = NotificationCompat.Builder(context!!, channelId)
-                    .setSmallIcon(R.drawable.app_logo)
-                    .setContentTitle(contentTitle)
-                    .setLargeIcon(resource)
-                    .setStyle(
-                        messagingStyle
-                    )
-                    .setAutoCancel(true)
-                    .setGroup(GROUP_KEY_WORK_EMAIL)
-                    .setGroupSummary(true)
-                    .setContentIntent(pendingIntent)
-
-                try {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        try {
-                            val channel = NotificationChannel(channelId, userName, NotificationManager.IMPORTANCE_HIGH)
-                            channel.enableLights(true)
-                            channel.enableVibration(true)
-                            channel.setSound(soundUri, audioAttributes)
-                            notificationManager.createNotificationChannel(channel)
-                        } catch (e: IllegalArgumentException) {
-                            e.printStackTrace()
-                        } catch (e: NullPointerException) {
-                            e.printStackTrace()
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                        log(mTag, "channelId: $channelId, title: $userName")
-                    } else {
-                        notificationBuilder.setSound(soundUri)
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-
-                notificationManager.notify(1000, notificationBuilder.build())
-            }
-
-            override fun onLoadCleared(placeholder: Drawable?) {
-                log(mTag, "onLoadCleared: $placeholder")
-            }
-
-        })
-
     }
 
 }

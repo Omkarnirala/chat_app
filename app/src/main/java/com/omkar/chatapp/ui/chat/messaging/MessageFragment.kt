@@ -241,8 +241,7 @@ class MessageFragment : BaseFragment() {
                 if (it.isSuccessful) {
                     b.etMessage.text?.clear()
                     messages.add(Message(message, System.currentTimeMillis(), currentData?.displayName.toString()))
-                    sendNotification(messages, token, currentData?.displayName)
-                    /*FirebaseUtil.getOtherUserOnlineStatus(receiverData?.uid)
+                    FirebaseUtil.getOtherUserOnlineStatus(receiverData?.uid)
                         .get()
                         .addOnCompleteListener { value ->
                             try {
@@ -256,7 +255,7 @@ class MessageFragment : BaseFragment() {
                             } catch (e: Exception) {
                                 log(mTag, "viewListener: $e")
                             }
-                        }*/
+                        }
                 }
             }
     }
@@ -359,7 +358,6 @@ class MessageFragment : BaseFragment() {
             }
         }
     }
-
 
     override fun onDestroyView() {
         _binding = null

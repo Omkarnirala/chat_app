@@ -31,6 +31,7 @@ import com.omkar.chatapp.utils.BaseFragment
 import com.omkar.chatapp.utils.FIREBASE_MESSAGING_TOKEN
 import com.omkar.chatapp.utils.FirebaseEvent
 import com.omkar.chatapp.utils.FirebaseUtil
+import com.omkar.chatapp.utils.FirebaseUtil.notificationBuilders
 import com.omkar.chatapp.utils.USER_EMAIL
 import com.omkar.chatapp.utils.USER_NAME
 import com.omkar.chatapp.utils.getStringData
@@ -90,6 +91,9 @@ class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback, ChatAdapter
                 param(USER_EMAIL, getStringData(context, USER_EMAIL, ""))
                 param(FirebaseAnalytics.Param.SCREEN_NAME, mTag)
             }
+
+            notificationBuilders.clear()
+            log(mTag, "FirebaseUtil.notificationBuilders.size: ${notificationBuilders.size}")
 
             FirebaseUtil.getCurrentProfilePicStorageRef().downloadUrl.addOnCompleteListener { uri ->
                 if (uri.isSuccessful) {
