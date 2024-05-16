@@ -52,7 +52,8 @@ class MessageFragment : BaseFragment() {
     private var receiverData: UserDetailsModel? = null
     private var currentData: UserDetailsModel? = null
     private val auth = FirebaseAuth.getInstance()
-//    private var emojiPopup: EmojiPopup? = null
+
+    //    private var emojiPopup: EmojiPopup? = null
     private var chatroomModel: ChatRoomModel? = null
     private val messages = mutableListOf<Message>()
 
@@ -157,7 +158,7 @@ class MessageFragment : BaseFragment() {
                         }
                     }
                 }
-                .addOnFailureListener {exception ->
+                .addOnFailureListener { exception ->
                     log(mTag, "currentUserName Error getting document: $exception")
                 }
 
@@ -180,7 +181,7 @@ class MessageFragment : BaseFragment() {
 
             FirebaseUtil.getOtherProfilePicStorageRef(receiverData?.email.toString()).downloadUrl.addOnCompleteListener { uri ->
                 if (uri.isSuccessful) {
-                    Glide.with(b.ivUserImage.context).load(uri.result).apply(RequestOptions().circleCrop()).into(b.ivUserImage)
+                    Glide.with(b.ivUserImage.context).load(uri.result ?: R.drawable.ic_profile).apply(RequestOptions().circleCrop()).into(b.ivUserImage)
                 }
             }
 
@@ -203,7 +204,7 @@ class MessageFragment : BaseFragment() {
 
                 }
 
-            b.userName.text = receiverData?.displayName
+            b.toolbarTitle.text = receiverData?.displayName ?: receiverData?.email
 
             b.ivSend.setOnClickListener {
 

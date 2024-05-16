@@ -141,7 +141,8 @@ class ProfileFragment : BaseFragment() {
                 log(mTag, "task result: ${task.result}")
                 b.tietUserName.setText(task.result.get("displayName").toString())
                 b.tietAboutUser.setText(task.result.get("status").toString())
-                Glide.with(b.ivProfile.context).load(task.result.get("profileImageUrl")).apply(RequestOptions().circleCrop()).into(b.ivProfile)
+                Glide.with(b.ivProfile.context).load(task.result.get("profileImageUrl") ?: R.drawable.change_avatar).apply(RequestOptions().circleCrop())
+                    .into(b.ivProfile)
             }
         }
 

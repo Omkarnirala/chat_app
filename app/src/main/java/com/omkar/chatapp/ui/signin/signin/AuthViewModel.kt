@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.omkar.chatapp.ui.signin.signup.SignUpResult
 import com.google.firebase.auth.AuthResult
+import com.omkar.chatapp.ui.signin.signup.SignUpResult
 import com.omkar.chatapp.ui.signin.signup.UserDetailsModel
 import com.omkar.chatapp.utils.timberLog
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class AuthViewModel(
-    private val repository: AuthRepository
+    private val repository: AuthRepository,
 ) : ViewModel() {
 
     val signInResult: LiveData<SignInResult> get() = _signInResult
@@ -22,16 +22,16 @@ class AuthViewModel(
     fun signIn(email: String, password: String) {
 
         viewModelScope.launch {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 try {
-                    repository.signIn(email, password) { isSuccess, exception, result->
+                    repository.signIn(email, password) { isSuccess, exception, result ->
                         if (isSuccess) {
                             _signInResult.postValue(SignInResult.Success(result))
                         } else {
                             _signInResult.postValue(SignInResult.Failure(exception))
                         }
                     }
-                } catch (exception: Exception){
+                } catch (exception: Exception) {
                     _signInResult.value = SignInResult.Failure(exception)
                 }
             }
@@ -43,7 +43,7 @@ class AuthViewModel(
 
     fun resetPassword(email: String) {
         timberLog("AuthViewModel", email)
-        repository.resetPassword(email) { isSuccess, exception , result ->
+        repository.resetPassword(email) { isSuccess, exception, result ->
             if (isSuccess) {
                 _resetPasswordResult.value = ResetPasswordResult.Success(result)
             } else {
@@ -72,6 +72,15 @@ class AuthViewModel(
 
     fun setValidation(email: String?, password: String?) {
         if (email?.isNotEmpty() == true && password?.isNotEmpty() == true) {
+            isValidForm.postValue(true)
+        } else {
+            isValidForm.postValue(false)
+        }
+    }
+
+    fun setSignUpValidation(userName: String?, email: String?, password: String?, cnfPassword: String?) {
+        if (userName?.isNotEmpty() == true && email?.isNotEmpty() == true && password?.isNotEmpty() == true && cnfPassword?.isNotEmpty() == true && password ==
+            cnfPassword) {
             isValidForm.postValue(true)
         } else {
             isValidForm.postValue(false)

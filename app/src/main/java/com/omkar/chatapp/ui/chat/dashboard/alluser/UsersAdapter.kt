@@ -7,6 +7,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
+import com.omkar.chatapp.R
 import com.omkar.chatapp.databinding.UserListBinding
 import com.omkar.chatapp.ui.signin.signup.UserDetailsModel
 import com.omkar.chatapp.utils.getTimeAgo
@@ -39,7 +40,8 @@ class UsersAdapter(
         holder.b.textViewName.text = model.displayName ?: model.email
         holder.b.textViewMessage.text = model.lastMessage ?: "Status: ${model.status}"
         holder.b.textViewMessagesTime.text = getTimeAgo(model.lastOnlineTime)
-        Glide.with(holder.b.imageViewProfile.context).load(model.profileImageUrl).apply(RequestOptions().circleCrop()).into(holder.b.imageViewProfile)
+        Glide.with(holder.b.imageViewProfile.context).load(model.profileImageUrl ?: R.drawable.ic_profile).apply(RequestOptions().circleCrop())
+            .into(holder.b.imageViewProfile)
     }
 
     interface UserCallback {

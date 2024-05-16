@@ -69,7 +69,7 @@ class SignInFragment : BaseFragment() {
 
     private fun initView() {
 
-        cxt?.let {context ->
+        cxt?.let { context ->
             val repository = AuthRepository()
             val viewModelFactory = AuthViewModelFactory(repository)
             authViewModel = ViewModelProvider(this, viewModelFactory)[AuthViewModel::class.java]
@@ -229,13 +229,18 @@ class SignInFragment : BaseFragment() {
 
             b.buttonLogin.setOnClickListener {
                 if (isInternetAvailable) {
-                    hideKeyboard(requireActivity())
-                    b.buttonLogin.showMaterialProgressBar(R.string.please_wait)
-                    authViewModel.signIn(
-                        b.tietMerchantEmail.text.toString(),
-                        b.tietMerchantPassword.text.toString()
-                    )
-                } else{
+                    if (b.tietMerchantEmail.text.toString().isNotEmpty() && b.tietMerchantPassword.text.toString().isNotEmpty()) {
+                        hideKeyboard(requireActivity())
+                        b.buttonLogin.showMaterialProgressBar(R.string.please_wait)
+                        authViewModel.signIn(
+                            b.tietMerchantEmail.text.toString(),
+                            b.tietMerchantPassword.text.toString()
+                        )
+                    } else {
+                        hideKeyboard(requireActivity())
+                        toasty(context, "Fields are Empty")
+                    }
+                } else {
                     showCustomAlertDialog(context, R.string.not_connected_to_internet, R.drawable.ic_server_connection1) {}
                 }
 

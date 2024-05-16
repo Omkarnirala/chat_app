@@ -62,5 +62,7 @@
     <string name="chat">Chat</string>
     <string name="all_users">All Users</string>
     <string name="your_message">You: %1$s</string>
+    <string name="re_enter_password">Re-Enter Password</string>
+    <string name="password_not_match">Password Doesn\'t Match</string>
 
 </resources>

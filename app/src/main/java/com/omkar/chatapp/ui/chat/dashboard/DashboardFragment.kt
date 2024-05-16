@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
+import com.google.android.material.search.SearchBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
@@ -39,7 +40,6 @@ import com.omkar.chatapp.utils.log
 import com.omkar.chatapp.utils.requestNotificationPermission
 import com.omkar.chatapp.utils.setStringData
 import com.omkar.chatapp.utils.showInternetError
-import org.w3c.dom.Text
 
 class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback, ChatAdapter.UserCallback {
 
@@ -98,7 +98,8 @@ class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback, ChatAdapter
             FirebaseUtil.getCurrentProfilePicStorageRef().downloadUrl.addOnCompleteListener { uri ->
                 if (uri.isSuccessful) {
                     log(mTag, "initView: ${uri.result}")
-                    Glide.with(b.toolbar.profileImage.context).load(uri.result).apply(RequestOptions().circleCrop()).into(b.toolbar.profileImage)
+                    Glide.with(b.toolbar.profileImage.context).load(uri.result ?: R.drawable.ic_profile).apply(RequestOptions().circleCrop())
+                        .into(b.toolbar.profileImage)
                 }
             }
 
@@ -177,6 +178,8 @@ class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback, ChatAdapter
             b.buttonAllUsers.setOnClickListener {
                 setUpAllUserViewData()
             }
+
+//            b.searchUser.
 
         }
     }

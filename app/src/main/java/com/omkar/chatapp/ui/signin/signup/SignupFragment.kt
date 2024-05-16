@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.activity.addCallback
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -118,6 +117,12 @@ class SignupFragment : BaseFragment() {
                 }
             }
 
+            authViewModel.getValidation().observe(viewLifecycleOwner) {
+                it?.let { validationStatus ->
+                    b.signUpButton.isEnabled = validationStatus
+                }
+            }
+
             authViewModel.signUpResult.observe(viewLifecycleOwner) { result ->
                 b.signUpButton.hideMaterialProgressBar(context.getString(R.string.sign_up))
                 when (result) {
@@ -127,21 +132,28 @@ class SignupFragment : BaseFragment() {
                             // Handle successful sign-up, and use user if needed
                             timberLog(mTag, "getViewModelData: ${result.user}")
 
-                            result.user.let {
-                                val user = UserDetailsModel(
-                                    uid = it.uid,
-                                    email = it.email,
-                                    displayName = it.displayName,
-                                    profileImageUrl = it.photoUrl?.toString(),
-                                    isOnline = true,
-                                    token = FirebaseMessaging.getInstance().token.result
-                                )
-                                authViewModel.addUserToFirestore(user)
-                                setBooleanData(context, IS_LOGIN, true)
-                                setStringData(context, USER_ID, user.uid)
-                                setStringData(context, USER_EMAIL, user.email)
-                                loginMethod(cxt)
+                            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    result.user.let {
+                                        val user = UserDetailsModel(
+                                            uid = it.uid,
+                                            email = it.email,
+                                            displayName = it.displayName ?: b.userNameEditText.text.toString(),
+                                            profileImageUrl = it.photoUrl?.toString(),
+                                            isOnline = true,
+                                            token = task.result.toString()
+                                        )
+                                        authViewModel.addUserToFirestore(user)
+                                        setBooleanData(context, IS_LOGIN, true)
+                                        setStringData(context, USER_ID, user.uid)
+                                        setStringData(context, USER_EMAIL, user.email)
+                                        loginMethod(cxt)
+                                    }
+                                } else {
+                                    toasty(requireContext(), "Unable to Signup")
+                                }
                             }
+
                         } else {
                             // Handle failure case where user is null
                             toasty(requireContext(), "Unable to Signup")
@@ -172,10 +184,38 @@ class SignupFragment : BaseFragment() {
                 findNavController().navigateUp()
             }
 
-            b.passwordEditText.setOnEditorActionListener { _, actionId, _ ->
+            b.cnfPasswordEditText.setOnEditorActionListener { _, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_DONE) b.signUpButton.performClick()
                 true
             }
+
+            b.userNameEditText.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    s?.let { charSequence ->
+                        authViewModel.setSignUpValidation(
+                            b.userNameEditText.text?.toString(),
+                            b.emailEditText.text?.toString(),
+                            b.passwordEditText.text?.toString(),
+                            b.cnfPasswordEditText.text.toString()
+                        )
+
+                        if (charSequence.toString().isEmpty()) {
+                            b.userNameInputLayout.showError(context, R.string.username)
+                        } else {
+                            b.userNameInputLayout.error = null
+                        }
+                    }
+                }
+
+                override fun afterTextChanged(s: Editable?) {
+
+                }
+
+            })
 
             b.emailEditText.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(
@@ -190,9 +230,11 @@ class SignupFragment : BaseFragment() {
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                     s?.let { charSequence ->
 
-                        authViewModel.setValidation(
+                        authViewModel.setSignUpValidation(
+                            b.userNameEditText.text?.toString(),
                             b.emailEditText.text?.toString(),
-                            b.passwordEditText.text?.toString()
+                            b.passwordEditText.text?.toString(),
+                            b.cnfPasswordEditText.text.toString()
                         )
 
                         if (charSequence.toString().isEmpty()) {
@@ -216,20 +258,17 @@ class SignupFragment : BaseFragment() {
             })
 
             b.passwordEditText.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int,
-                ) {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
 
                 }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                     s?.let { charSequence ->
-                        authViewModel.setValidation(
+                        authViewModel.setSignUpValidation(
+                            b.userNameEditText.text?.toString(),
+                            b.emailEditText.text?.toString(),
                             b.passwordEditText.text?.toString(),
-                            b.passwordEditText.text?.toString()
+                            b.cnfPasswordEditText.text.toString()
                         )
 
                         if (charSequence.toString().isEmpty()) {
@@ -245,44 +284,52 @@ class SignupFragment : BaseFragment() {
 
             })
 
-            b.cnfPasswordEditText.addTextChangedListener {
-                object : TextWatcher {
-                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
-                    }
-
-                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                        s?.let { charSequence ->
-                            /*if (charSequence.toString().isEmpty()) {
-                                b.cnfPasswordInputLayout.showError(context, R.string.enter_password)
-                            } else {
-                                b.cnfPasswordInputLayout.error = null
-                            }*/
-
-                            if (b.passwordEditText.text?.equals(charSequence.toString()) != true) {
-                                b.cnfPasswordInputLayout.showError(context, R.string.enter_password)
-                            } else {
-                                b.cnfPasswordInputLayout.error = null
-                            }
-
-                        }
-                    }
-
-                    override fun afterTextChanged(s: Editable?) {
-
-                    }
+            b.cnfPasswordEditText.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
 
                 }
-            }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    s?.let { charSequence ->
+                        authViewModel.setSignUpValidation(
+                            b.userNameEditText.text?.toString(),
+                            b.emailEditText.text?.toString(),
+                            b.passwordEditText.text?.toString(),
+                            b.cnfPasswordEditText.text.toString()
+                        )
+
+                        if (charSequence.toString().equals(b.passwordEditText.text.toString(), false)) {
+                            b.cnfPasswordInputLayout.error = null
+                        } else {
+                            b.cnfPasswordInputLayout.showError(context, R.string.password_not_match)
+
+                        }
+
+                    }
+                }
+
+                override fun afterTextChanged(s: Editable?) {
+
+                }
+
+            })
 
             b.signUpButton.setOnClickListener {
+
                 if (isInternetAvailable) {
-                    hideKeyboard(requireActivity())
-                    b.signUpButton.showMaterialProgressBar(R.string.please_wait)
-                    authViewModel.signUp(
-                        b.emailEditText.text.toString(),
-                        b.passwordEditText.text.toString()
-                    )
+                    if (b.emailEditText.text?.isNotEmpty() == true && b.passwordEditText.text?.isNotEmpty() == true && b.cnfPasswordEditText.text?.isNotEmpty()
+                        == true
+                    ) {
+                        hideKeyboard(requireActivity())
+                        b.signUpButton.showMaterialProgressBar(R.string.please_wait)
+                        authViewModel.signUp(
+                            b.emailEditText.text.toString(),
+                            b.passwordEditText.text.toString()
+                        )
+                    } else {
+                        hideKeyboard(requireActivity())
+                        toasty(context, "Fields are Empty")
+                    }
                 } else {
                     showCustomAlertDialog(
                         context,
@@ -290,6 +337,7 @@ class SignupFragment : BaseFragment() {
                         R.drawable.ic_server_connection1
                     ) {}
                 }
+
             }
         }
     }

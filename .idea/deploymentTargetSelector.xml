@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DIALOG" />
-        <DropdownSelection timestamp="2024-05-11T11:22:56.592357900Z">
+        <DropdownSelection timestamp="2024-05-15T14:02:18.630684400Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=603d4f83" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\omkar\.android\avd\Medium_Phone_API_34.avd" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -15,12 +15,12 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\omkar\.android\avd\Medium_Phone_API_34.avd" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=603d4f83" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=603d4f83" />
+                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\omkar\.android\avd\Medium_Phone_API_34.avd" />
               </handle>
             </Target>
           </targets>

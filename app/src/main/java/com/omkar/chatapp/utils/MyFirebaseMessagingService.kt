@@ -1,7 +1,6 @@
 package com.omkar.chatapp.utils
 
 import android.Manifest
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ContentResolver
@@ -16,7 +15,6 @@ import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.app.Person
 import androidx.navigation.NavDeepLinkBuilder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
@@ -52,7 +50,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             // Handle message within 10 seconds
             handleNow()
         }
-        log(mTag, "notification: ${remoteMessage.notification}")
 
         remoteMessage.data.let { data ->
             val messageBodyData = data["body"]
@@ -75,9 +72,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             log(mTag, "userDetails of Receiver Data: ${userDetails.status}")
 
             showNotification(messages, userDetails)
-
         }
-
     }
 
     private fun showNotification(
@@ -89,6 +84,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         log(mTag, "Message: $messages")
 
         val soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + this.packageName + "/" + R.raw.notification)
+        val audioAttributes = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).build()
 
         val bundle = Bundle().apply {
             putParcelable("user", userDetails)
@@ -96,7 +92,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val pendingIntent = NavDeepLinkBuilder(applicationContext).setComponentName(MainActivity::class.java).setGraph(R.navigation.main_navigation)
             .setDestination(R.id.messageFragment).setArguments(bundle).createPendingIntent()
 
-        Glide.with(applicationContext).asBitmap().load(userDetails.profileImageUrl).into(object : CustomTarget<Bitmap>() {
+        Glide.with(applicationContext).asBitmap().load(userDetails.profileImageUrl ?: R.drawable.ic_profile).into(object : CustomTarget<Bitmap>() {
             override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
 
                 messages.forEach { message ->
@@ -136,27 +132,40 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
                 }
 
-                NotificationManagerCompat.from(applicationContext).apply {
-                    if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                        return
+                val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        try {
+                            val channel = NotificationChannel(CHANNEL_ID, userDetails.displayName, NotificationManager.IMPORTANCE_HIGH)
+                            channel.enableLights(true)
+                            channel.enableVibration(true)
+                            channel.setSound(soundUri, audioAttributes)
+                            notificationManager.createNotificationChannel(channel)
+                        } catch (e: IllegalArgumentException) {
+                            e.printStackTrace()
+                        } catch (e: NullPointerException) {
+                            e.printStackTrace()
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                        log(mTag, "channelId: $CHANNEL_ID, title: ${userDetails.displayName}")
+
                     }
-                    notificationBuilders.forEach { (person, builder) ->
-                        log(mTag, "notificationBuilders.notify ID: ${person.hashCode()}")
-                        log(mTag, "notificationBuilders.notify Builder: $builder")
-                        notify(person.hashCode(), builder.build())
-                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
+
+                notificationBuilders.forEach { (person, builder) ->
+                    log(mTag, "notificationBuilders.notify ID: ${person.hashCode()}")
+                    log(mTag, "notificationBuilders.notify Builder: $builder")
+                    notificationManager.notify(person.hashCode(), builder.build())
+                }
+
             }
 
             override fun onLoadCleared(placeholder: Drawable?) {
-                TODO("Not yet implemented")
+                log(mTag, "onLoadCleared: $placeholder")
             }
 
         })

@@ -35,8 +35,7 @@ class ChatAdapter(
     }
 
     override fun onBindViewHolder(holder: UserListViewHolder, position: Int, model: ChatRoomModel) {
-        FirebaseUtil.getOtherUserFromChatroom(model.userIds)
-            .get().addOnCompleteListener { task ->
+        FirebaseUtil.getOtherUserFromChatroom(model.userIds).get().addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     log(mTag, "ChatRoomModel: ${task.result}")
                     val lastMessageSentByMe: Boolean = model.lastMessageSenderId.equals(FirebaseUtil.currentUserId())
@@ -48,7 +47,10 @@ class ChatAdapter(
                     } else {
                         holder.b.textViewMessage.text = model.lastMessage
                     }
-                    Glide.with(holder.b.imageViewProfile.context).load(otherUserModel?.profileImageUrl).apply(RequestOptions().circleCrop()).into(holder.b.imageViewProfile)
+                    Glide.with(holder.b.imageViewProfile.context).load(otherUserModel?.profileImageUrl ?: R.drawable.ic_profile)
+                        .apply(RequestOptions().circleCrop()).into(
+                            holder.b.imageViewProfile
+                        )
                     holder.b.textViewMessagesTime.text = getTimeAgo(otherUserModel!!.lastOnlineTime)
 
                     holder.b.root.setOnClickListener {

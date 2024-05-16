@@ -32,7 +32,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/userName"
+                android:id="@+id/toolbarTitle"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:fontFamily="@font/poppins_medium"
