@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.activity.addCallback
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -243,6 +244,36 @@ class SignupFragment : BaseFragment() {
                 }
 
             })
+
+            b.cnfPasswordEditText.addTextChangedListener {
+                object : TextWatcher {
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+                    }
+
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                        s?.let { charSequence ->
+                            /*if (charSequence.toString().isEmpty()) {
+                                b.cnfPasswordInputLayout.showError(context, R.string.enter_password)
+                            } else {
+                                b.cnfPasswordInputLayout.error = null
+                            }*/
+
+                            if (b.passwordEditText.text?.equals(charSequence.toString()) != true) {
+                                b.cnfPasswordInputLayout.showError(context, R.string.enter_password)
+                            } else {
+                                b.cnfPasswordInputLayout.error = null
+                            }
+
+                        }
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
+
+                    }
+
+                }
+            }
 
             b.signUpButton.setOnClickListener {
                 if (isInternetAvailable) {

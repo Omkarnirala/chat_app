@@ -25,8 +25,8 @@
                 android:id="@+id/ivBack"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:src="@drawable/left_2"
                 android:paddingHorizontal="@dimen/five_dp"
+                android:src="@drawable/left_2"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -94,7 +94,7 @@
         app:layout_constraintStart_toStartOf="@+id/ivProfile" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tilAboutUser"
+        android:id="@+id/tilUserName"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -107,11 +107,13 @@
         app:layout_constraintTop_toBottomOf="@+id/ivAddProfilePic">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/tietAboutUser"
+            android:id="@+id/tietUserName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/poppins_medium"
-            android:hint="@string/about_user"
+            android:drawableStart="@drawable/ic_profile"
+            android:drawablePadding="@dimen/five_dp"
+            android:hint="@string/username"
             android:inputType="text"
             android:maxLength="@integer/email_length"
             android:maxLines="@integer/one_line" />
@@ -119,24 +121,26 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tilUserName"
+        android:id="@+id/tilAboutUser"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/twenty_five_dp"
         android:layout_marginTop="@dimen/eight_dp"
-        android:nextFocusDown="@id/tilMerchantPassword"
+        android:nextFocusDown="@id/buttonSave"
         app:errorEnabled="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tilAboutUser">
+        app:layout_constraintTop_toBottomOf="@+id/tilUserName">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/tietUserName"
+            android:id="@+id/tietAboutUser"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/poppins_medium"
-            android:hint="@string/username"
+            android:drawableStart="@drawable/ic_store_info"
+            android:drawablePadding="@dimen/five_dp"
+            android:hint="@string/about_user"
             android:inputType="text"
             android:maxLength="@integer/email_length"
             android:maxLines="@integer/one_line" />
@@ -160,6 +164,6 @@
         app:cornerRadius="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tilUserName" />
+        app:layout_constraintTop_toBottomOf="@+id/tilAboutUser" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

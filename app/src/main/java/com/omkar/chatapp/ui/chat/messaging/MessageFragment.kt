@@ -240,7 +240,6 @@ class MessageFragment : BaseFragment() {
             .addOnCompleteListener {
                 if (it.isSuccessful) {
                     b.etMessage.text?.clear()
-                    messages.add(Message(message, System.currentTimeMillis(), currentData?.displayName.toString()))
                     FirebaseUtil.getOtherUserOnlineStatus(receiverData?.uid)
                         .get()
                         .addOnCompleteListener { value ->

@@ -34,6 +34,7 @@ import com.omkar.chatapp.utils.USER_EMAIL
 import com.omkar.chatapp.utils.getStringData
 import com.omkar.chatapp.utils.hideKeyboard
 import com.omkar.chatapp.utils.hideMaterialProgressBar
+import com.omkar.chatapp.utils.log
 import com.omkar.chatapp.utils.logoutMethod
 import com.omkar.chatapp.utils.showInternetError
 import com.omkar.chatapp.utils.showMaterialProgressBar
@@ -99,7 +100,6 @@ class ProfileFragment : BaseFragment() {
         )
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
@@ -125,6 +125,24 @@ class ProfileFragment : BaseFragment() {
         firebaseAnalytics?.logEvent(FirebaseEvent.PROFILE_FRAGMENT) {
             param(USER_EMAIL, getStringData(context, USER_EMAIL, ""))
             param(FirebaseAnalytics.Param.SCREEN_NAME, mTag)
+        }
+
+        /*
+                FirebaseUtil.getCurrentProfilePicStorageRef().downloadUrl.addOnCompleteListener { uri ->
+                    if (uri.isSuccessful) {
+                        log(mTag, "initView: ${uri.result}")
+                        Glide.with(b.ivProfile.context).load(uri.result).apply(RequestOptions().circleCrop()).into(b.ivProfile)
+                    }
+                }
+        */
+
+        FirebaseUtil.currentUserDetails().get().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                log(mTag, "task result: ${task.result}")
+                b.tietUserName.setText(task.result.get("displayName").toString())
+                b.tietAboutUser.setText(task.result.get("status").toString())
+                Glide.with(b.ivProfile.context).load(task.result.get("profileImageUrl")).apply(RequestOptions().circleCrop()).into(b.ivProfile)
+            }
         }
 
         viewModel = ViewModelProvider(this)[UpdateUserProfileViewModel::class.java]
