@@ -2,6 +2,8 @@ package com.omkar.chatapp.ui.chat.dashboard
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,11 +17,11 @@ import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
-import com.google.android.material.search.SearchBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.messaging.FirebaseMessaging
 import com.omkar.chatapp.R
@@ -40,8 +42,11 @@ import com.omkar.chatapp.utils.log
 import com.omkar.chatapp.utils.requestNotificationPermission
 import com.omkar.chatapp.utils.setStringData
 import com.omkar.chatapp.utils.showInternetError
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback, ChatAdapter.UserCallback {
+class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback, ChatAdapter.UserCallback, SearchAdapter.UserCallback {
 
     private val mTag = "DashboardFragment"
 
@@ -49,6 +54,7 @@ class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback, ChatAdapter
     private val b get() = _binding!!
     private var usersAdapter: UsersAdapter? = null
     private var chatAdapter: ChatAdapter? = null
+    private var searchAdapter: SearchAdapter? = null
     private var snackbar: Snackbar? = null
     private val auth = FirebaseAuth.getInstance()
     private lateinit var notificationPermissionLauncher: ActivityResultLauncher<Intent>
@@ -120,17 +126,20 @@ class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback, ChatAdapter
                     FirebaseUtil.updateUserToken(auth.currentUser?.uid, task.result)
                 }
             }
+
+            b.searchUser.text?.clear()
         }
     }
 
     override fun onStop() {
         super.onStop()
         usersAdapter?.stopListening()
+        chatAdapter?.startListening()
     }
 
     private fun setUpChatViewData() {
         cxt?.let { context ->
-
+            log(mTag, "setUpChatViewData")
             b.buttonCurrentChat.setTextColor(ContextCompat.getColor(requireContext(), R.color.bg_home))
             b.buttonAllUsers.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
             b.viewCurrentChat.visibility = View.VISIBLE
@@ -142,12 +151,12 @@ class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback, ChatAdapter
 
             val option = FirestoreRecyclerOptions.Builder<ChatRoomModel>()
                 .setQuery(query, ChatRoomModel::class.java)
-                .setLifecycleOwner(this)
+                .setLifecycleOwner(this@DashboardFragment)
                 .build()
 
             log(mTag, "setUpChatViewData: ${option.snapshots}}")
 
-            chatAdapter = ChatAdapter(option, this)
+            chatAdapter = ChatAdapter(option, this@DashboardFragment)
             b.rvUserList.apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = chatAdapter
@@ -179,9 +188,57 @@ class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback, ChatAdapter
                 setUpAllUserViewData()
             }
 
-//            b.searchUser.
+            b.searchUser.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
 
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    s?.let { charSequence ->
+                        if (charSequence.isEmpty()) {
+                            b.clUserRoot.visibility = View.VISIBLE
+                            b.toolbar.root.visibility = View.VISIBLE
+                            setUpChatViewData()
+                        } else {
+                            b.clUserRoot.visibility = View.GONE
+                            b.toolbar.root.visibility = View.GONE
+                            setUpSearchViewData(charSequence.toString())
+                        }
+                    }
+                }
+
+                override fun afterTextChanged(s: Editable?) {
+
+                }
+            })
         }
+    }
+
+    private fun setUpSearchViewData(searchSequence: String) {
+        val query = FirebaseUtil.allUserCollectionReference()
+            .whereEqualTo("displayName", searchSequence)
+
+        val option = FirestoreRecyclerOptions.Builder<UserDetailsModel>()
+            .setQuery(query, UserDetailsModel::class.java)
+            .setLifecycleOwner(this@DashboardFragment)
+            .build()
+
+        log(mTag, "setUpSearchViewData: ${option.snapshots.filter { it.uid != auth.currentUser?.uid }}")
+
+        searchAdapter = SearchAdapter(option, this@DashboardFragment)
+        b.rvUserList.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = searchAdapter
+        }
+
+        searchAdapter?.startListening()
+        searchAdapter?.registerAdapterDataObserver(object : AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                searchAdapter?.notifyDataSetChanged()
+                log(mTag, "onItemRangeInserted: $itemCount")
+            }
+        })
     }
 
     private fun setUpAllUserViewData() {
@@ -193,11 +250,11 @@ class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback, ChatAdapter
         val query = FirebaseUtil.getAllUserDetails().whereNotEqualTo("uid", auth.currentUser?.uid)
         val option = FirestoreRecyclerOptions.Builder<UserDetailsModel>()
             .setQuery(query, UserDetailsModel::class.java)
-            .setLifecycleOwner(this)
+            .setLifecycleOwner(this@DashboardFragment)
             .build()
         log(mTag, "setUpAllUserViewData: ${option.snapshots.filter { it.uid != auth.currentUser?.uid }}")
 
-        usersAdapter = UsersAdapter(option, this)
+        usersAdapter = UsersAdapter(option, this@DashboardFragment)
         b.rvUserList.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = usersAdapter
@@ -214,6 +271,7 @@ class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback, ChatAdapter
     }
 
     override fun onUserClickedCallBack(position: Int, user: UserDetailsModel?) {
+        b.searchUser.text?.clear()
         val bundle = Bundle().apply {
             putParcelable("user", user)
         }

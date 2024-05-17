@@ -61,21 +61,25 @@ class ProfileFragment : BaseFragment() {
     private lateinit var viewModel: UpdateUserProfileViewModel
     private var snackbar: Snackbar? = null
     private var photoURI: Uri? = null
+    private var uploadPhotoURI: Uri? = null
     private var currentPhotoFile: String? = null
 
     private val takeSelfieLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             val resultCode = result.resultCode
-            val data = result.data
+            uploadPhotoURI = result.data?.data
             when (resultCode) {
                 Activity.RESULT_OK -> {
-                    b.ivProfile.visibility = View.INVISIBLE
-                    b.progressBar.visibility = View.VISIBLE
-                    uploadImageToFirebase(data?.data)
+//                    b.ivProfile.visibility = View.INVISIBLE
+//                    b.progressBar.visibility = View.VISIBLE
+
+                    Glide.with(b.ivProfile.context).load(uploadPhotoURI).apply(RequestOptions().circleCrop()).into(b.ivProfile)
+                    log(mTag, "registerForActivityResult uploadPhotoURI: $uploadPhotoURI")
+//                    uploadImageToFirebase(data?.data)
                 }
 
                 ImagePicker.RESULT_ERROR -> {
-                    Toast.makeText(requireContext(), ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), ImagePicker.getError(result.data), Toast.LENGTH_SHORT).show()
                 }
 
                 else -> {
@@ -83,22 +87,6 @@ class ProfileFragment : BaseFragment() {
                 }
             }
         }
-
-    private fun uploadImageToFirebase(fileUri: Uri?) {
-        viewModel.uploadImage(
-            fileUri,
-            onSuccess = { url ->
-                currentPhotoFile = url
-                b.ivProfile.visibility = View.VISIBLE
-                b.progressBar.visibility = View.GONE
-                Glide.with(b.ivProfile.context).load(url).apply(RequestOptions().circleCrop()).into(b.ivProfile)
-                toasty(requireContext(), "Done")
-            },
-            onFailure = { exception ->
-                toasty(requireContext(), "Unable to upload image $exception")
-            }
-        )
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -192,11 +180,8 @@ class ProfileFragment : BaseFragment() {
             b.buttonSave.setOnClickListener {
                 hideKeyboard(requireActivity())
                 b.buttonSave.showMaterialProgressBar(R.string.please_wait)
-                viewModel.updateUserProfile(
-                    b.tietUserName.text.toString(),
-                    currentPhotoFile,
-                    b.tietAboutUser.text.toString()
-                )
+                log(mTag, "registerForActivityResult uploadPhotoURI: $uploadPhotoURI")
+                uploadImageToFirebase(uploadPhotoURI)
             }
 
             b.ivLogout.setOnClickListener {
@@ -205,6 +190,23 @@ class ProfileFragment : BaseFragment() {
             }
 
         }
+    }
+
+    private fun uploadImageToFirebase(fileUri: Uri?) {
+        viewModel.uploadImage(
+            fileUri,
+            onSuccess = { url ->
+                currentPhotoFile = url
+                viewModel.updateUserProfile(
+                    b.tietUserName.text.toString().trim(),
+                    currentPhotoFile,
+                    b.tietAboutUser.text.toString().trim()
+                )
+            },
+            onFailure = { exception ->
+                toasty(requireContext(), "Unable to upload image $exception")
+            }
+        )
     }
 
     private fun dispatchTakePictureIntent(selfieRequest: Int, context: Context) {
@@ -234,6 +236,7 @@ class ProfileFragment : BaseFragment() {
                                 takeSelfieLauncher.launch(intent)
                             }
                     }
+                    log(mTag, "photoURI: $photoURI")
                 }
             }
         }
