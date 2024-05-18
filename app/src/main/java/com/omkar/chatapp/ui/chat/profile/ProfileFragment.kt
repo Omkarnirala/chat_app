@@ -115,22 +115,18 @@ class ProfileFragment : BaseFragment() {
             param(FirebaseAnalytics.Param.SCREEN_NAME, mTag)
         }
 
-        /*
-                FirebaseUtil.getCurrentProfilePicStorageRef().downloadUrl.addOnCompleteListener { uri ->
-                    if (uri.isSuccessful) {
-                        log(mTag, "initView: ${uri.result}")
-                        Glide.with(b.ivProfile.context).load(uri.result).apply(RequestOptions().circleCrop()).into(b.ivProfile)
-                    }
-                }
-        */
-
         FirebaseUtil.currentUserDetails().get().addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 log(mTag, "task result: ${task.result}")
                 b.tietUserName.setText(task.result.get("displayName").toString())
                 b.tietAboutUser.setText(task.result.get("status").toString())
-                Glide.with(b.ivProfile.context).load(task.result.get("profileImageUrl") ?: R.drawable.change_avatar).apply(RequestOptions().circleCrop())
-                    .into(b.ivProfile)
+                b.userEmail.text = task.result.get("email").toString()
+                if (task.result.get("profileImageUrl").toString() == "null" || task.result.get("profileImageUrl").toString().isEmpty()){
+                    Glide.with(b.ivProfile.context).load(R.drawable.change_avatar).apply(RequestOptions().circleCrop()).into(b.ivProfile)
+                } else {
+                    Glide.with(b.ivProfile.context).load(task.result.get("profileImageUrl")).apply(RequestOptions().circleCrop()).into(b.ivProfile)
+                }
+
             }
         }
 

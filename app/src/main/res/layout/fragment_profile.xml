@@ -35,7 +35,8 @@
                 android:id="@+id/toolbarTitle"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:fontFamily="@font/poppins_medium"
+                android:fontFamily="@font/poppins_bold"
+                android:textSize="@dimen/eighteen_sp"
                 android:gravity="center_vertical"
                 android:maxLines="1"
                 android:paddingHorizontal="@dimen/five_dp"
@@ -61,11 +62,10 @@
 
     </com.google.android.material.appbar.MaterialToolbar>
 
-
     <ImageView
         android:id="@+id/ivProfile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_marginTop="40dp"
         android:src="@drawable/change_avatar"
         android:visibility="visible"
@@ -93,6 +93,17 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/ivProfile" />
 
+    <TextView
+        android:id="@+id/userEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/ten_dp"
+        android:gravity="center"
+        android:fontFamily="@font/poppins_light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ivAddProfilePic"/>
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilUserName"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -104,7 +115,7 @@
         app:errorEnabled="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivAddProfilePic">
+        app:layout_constraintTop_toBottomOf="@+id/userEmail">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/tietUserName"

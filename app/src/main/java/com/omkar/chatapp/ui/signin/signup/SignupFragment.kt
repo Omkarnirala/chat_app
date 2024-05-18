@@ -34,7 +34,6 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.omkar.chatapp.LauncherViewModel
 import com.omkar.chatapp.R
 import com.omkar.chatapp.databinding.FragmentSignupBinding
-import com.omkar.chatapp.ui.chat.profile.ProfileFragment
 import com.omkar.chatapp.ui.chat.profile.UpdateUserProfileViewModel
 import com.omkar.chatapp.ui.signin.signin.AuthRepository
 import com.omkar.chatapp.ui.signin.signin.AuthViewModel
@@ -405,27 +404,33 @@ class SignupFragment : BaseFragment() {
         viewModel.uploadImage(
             uploadPhotoURI,
             onSuccess = { url ->
-                b.signUpButton.hideMaterialProgressBar(context.getString(R.string.sign_up))
-                currentPhotoFile = url
-
-                val user = UserDetailsModel(
-                    uid = firebaseUser.uid,
-                    email = firebaseUser.email,
-                    displayName = firebaseUser.displayName ?: b.userNameEditText.text.toString(),
-                    profileImageUrl = url,
-                    isOnline = true,
-                    token = token
-                )
-                authViewModel.addUserToFirestore(user)
-                setBooleanData(context, IS_LOGIN, true)
-                setStringData(context, USER_ID, user.uid)
-                setStringData(context, USER_EMAIL, user.email)
-                loginMethod(cxt)
+                finalizeUserSetup(context, firebaseUser, url, token)
             },
             onFailure = { exception ->
-                toasty(requireContext(), "Unable to upload image $exception")
+                log(mTag, "uploadImageToFirebase: $exception")
+                val defaultUrl = firebaseUser.photoUrl.toString()
+                finalizeUserSetup(context, firebaseUser, defaultUrl, token)
             }
         )
+    }
+
+    private fun finalizeUserSetup(context: Context, firebaseUser: FirebaseUser, imageUrl: String, token: String) {
+        b.signUpButton.hideMaterialProgressBar(context.getString(R.string.sign_up))
+
+        val user = UserDetailsModel(
+            uid = firebaseUser.uid,
+            email = firebaseUser.email,
+            displayName = firebaseUser.displayName ?: b.userNameEditText.text.toString(),
+            profileImageUrl = imageUrl,
+            isOnline = true,
+            token = token
+        )
+
+        authViewModel.addUserToFirestore(user)
+        setBooleanData(context, IS_LOGIN, true)
+        setStringData(context, USER_ID, user.uid)
+        setStringData(context, USER_EMAIL, user.email)
+        loginMethod(context)
     }
 
     private fun dispatchTakePictureIntent(selfieRequest: Int, context: Context) {

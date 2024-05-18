@@ -44,9 +44,10 @@ import java.util.Locale
 import java.util.regex.Pattern
 
 fun log(mTag: String, message: String) {
-    if (BuildConfig.DEBUG) {
+    Timber.tag(mTag).d(message)
+    /*if (BuildConfig.DEBUG) {
         Log.d(mTag, message)
-    }
+    }*/
 }
 
 fun timberLog(mTag: String, message: String) {

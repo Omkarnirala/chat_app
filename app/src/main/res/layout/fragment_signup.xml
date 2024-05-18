@@ -26,7 +26,7 @@
             <ImageView
                 android:id="@+id/ivBack"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:src="@drawable/left_2"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -35,9 +35,10 @@
             <TextView
                 android:id="@+id/toolbarTitle"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:paddingHorizontal="@dimen/five_dp"
-                android:fontFamily="@font/poppins_medium"
+                android:fontFamily="@font/poppins_bold"
+                android:textSize="@dimen/eighteen_sp"
                 android:gravity="center_vertical"
                 android:maxLines="1"
                 android:text="@string/sign_up"
@@ -50,7 +51,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.appbar.MaterialToolbar>
-
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"

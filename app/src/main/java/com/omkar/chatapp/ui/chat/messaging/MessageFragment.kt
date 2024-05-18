@@ -299,7 +299,7 @@ class MessageFragment : BaseFragment() {
     }
 
     private fun sendNotification(fcmMessage: MutableList<Message>, fcmToken: String?, userName: String?) {
-        toasty(requireContext(), "Sending Notification: $fcmMessage")
+//        toasty(requireContext(), "Sending Notification: $fcmMessage")
         CoroutineScope(Dispatchers.IO).launch {
             // Executes the network request on a background thread
             try {
@@ -346,10 +346,10 @@ class MessageFragment : BaseFragment() {
                     val responseCode = responseCode
                     if (responseCode == HttpURLConnection.HTTP_OK) {
                         val response = inputStream.bufferedReader().use { it.readText() }
-                        log(mTag, "Response: $response")
+//                        log(mTag, "Response: $response")
                         println("Response: $response")
                     } else {
-                        log(mTag, "FCM request failed with response code $responseCode")
+//                        log(mTag, "FCM request failed with response code $responseCode")
 //                        println("FCM request failed with response code $responseCode")
                     }
                 }

@@ -100,7 +100,6 @@ class ForgetPasswordFragment : BaseFragment() {
                             it.show()
                         }
                     }
-
                 }
             }
 
@@ -143,7 +142,7 @@ class ForgetPasswordFragment : BaseFragment() {
 
     private fun viewListener() {
         cxt?.let {context ->
-            b.include.backButton.setOnClickListener {
+            b.ivBack.setOnClickListener {
                 try {
                     Navigation.findNavController(b.root).navigateUp()
                 } catch (e: Exception) {
@@ -151,7 +150,7 @@ class ForgetPasswordFragment : BaseFragment() {
                 }
             }
 
-            b.include.tvTitle.setText(R.string.forget_password)
+            b.toolbarTitle.setText(R.string.forget_password)
 
             b.tietEmail.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
