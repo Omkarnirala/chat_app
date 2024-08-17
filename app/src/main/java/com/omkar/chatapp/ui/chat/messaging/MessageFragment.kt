@@ -29,7 +29,6 @@ import com.omkar.chatapp.utils.USER_EMAIL
 import com.omkar.chatapp.utils.getStringData
 import com.omkar.chatapp.utils.log
 import com.omkar.chatapp.utils.showInternetError
-import com.omkar.chatapp.utils.toasty
 import com.zegocloud.uikit.service.defines.ZegoUIKitUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -259,7 +258,6 @@ class MessageFragment : BaseFragment() {
                 }
             }
     }
-
 
     private fun setAudioCall(targetUserId: String) {
 

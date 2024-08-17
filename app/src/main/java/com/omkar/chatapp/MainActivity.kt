@@ -62,8 +62,15 @@ class MainActivity : BaseAppCompatActivity() {
     private fun initCallInviteService(uid: String, uName: String) {
 
         val application: Application = application
-        val appID: Long = 1602751084
-        val appSign = "98aed2b4e01ff9affd18ae5aa05f658293d4116b1a6238939dbeb02238f487d3"
+
+        //Old
+//        val appID: Long = 1602751084
+//        val appSign = "98aed2b4e01ff9affd18ae5aa05f658293d4116b1a6238939dbeb02238f487d3"
+
+        //New
+        val appID: Long = 1043619169
+        val appSign = "2729b9d1ae42270273a5b74dcd01b1e5fedf70ce5a77df4b6cd60b2b617830eb"
+
         val userID: String = uid
         val userName: String = uName
         timberLog("MainActivity", "UserName: $userName")

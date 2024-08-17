@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -49,7 +50,6 @@ import kotlinx.coroutines.launch
 class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback, ChatAdapter.UserCallback, SearchAdapter.UserCallback {
 
     private val mTag = "DashboardFragment"
-
     private var _binding: FragmentDashboardBinding? = null
     private val b get() = _binding!!
     private var usersAdapter: UsersAdapter? = null
@@ -59,10 +59,7 @@ class DashboardFragment : BaseFragment(), UsersAdapter.UserCallback, ChatAdapter
     private val auth = FirebaseAuth.getInstance()
     private lateinit var notificationPermissionLauncher: ActivityResultLauncher<Intent>
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?, ): View {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
         return b.root
     }

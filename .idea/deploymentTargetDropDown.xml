@@ -10,23 +10,24 @@
               <deviceKey>
                 <Key>
                   <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\Omkar\.android\avd\Medium_Phone_API_33.avd" />
+                  <value value="C:\Users\omkar\.android\avd\Medium_Phone_API_33.avd" />
                 </Key>
               </deviceKey>
             </Target>
           </targetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-05-17T09:46:46.040460800Z" />
-          <targetsSelectedWithDialog>
+          <timeTargetWasSelectedWithDropDown value="2024-08-17T18:15:35.121390500Z" />
+          <multipleDevicesSelectedInDropDown value="true" />
+          <runningDeviceTargetsSelectedWithDialog>
             <Target>
-              <type value="QUICK_BOOT_TARGET" />
+              <type value="RUNNING_DEVICE_TARGET" />
               <deviceKey>
                 <Key>
-                  <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\Omkar\.android\avd\Medium_Phone_API_33_2.avd" />
+                  <type value="SERIAL_NUMBER" />
+                  <value value="603d4f83" />
                 </Key>
               </deviceKey>
             </Target>
-          </targetsSelectedWithDialog>
+          </runningDeviceTargetsSelectedWithDialog>
         </State>
       </entry>
     </value>

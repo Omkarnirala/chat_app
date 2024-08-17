@@ -64,8 +64,7 @@ class ProfileFragment : BaseFragment() {
     private var uploadPhotoURI: Uri? = null
     private var currentPhotoFile: String? = null
 
-    private val takeSelfieLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    private val takeSelfieLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             val resultCode = result.resultCode
             uploadPhotoURI = result.data?.data
             when (resultCode) {
@@ -90,7 +89,7 @@ class ProfileFragment : BaseFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         return b.root
@@ -255,6 +254,5 @@ class ProfileFragment : BaseFragment() {
             storageDir /* directory */
         )
     }
-
 
 }

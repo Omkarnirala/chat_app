@@ -1,20 +1,16 @@
 package com.omkar.chatapp.utils
 
-import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ContentResolver
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.media.AudioAttributes
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.NavDeepLinkBuilder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
@@ -34,7 +30,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     private var context: Context? = null
 
     companion object {
-        private val mTag = "FirebaseMessageService"
+        private const val mTag = "FirebaseMessageService"
         private const val CHANNEL_ID = "Chat Messages"
     }
 
@@ -75,10 +71,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun showNotification(
-        messages: List<Message>,
-        userDetails: UserDetailsModel,
-    ) {
+    private fun showNotification(messages: List<Message>, userDetails: UserDetailsModel) {
 
         log(mTag, "Title: ${userDetails.displayName}")
         log(mTag, "Message: $messages")

@@ -3,19 +3,16 @@ package com.omkar.chatapp.utils
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import androidx.core.provider.FontRequest
 import androidx.fragment.app.Fragment
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.ktx.Firebase
-import com.omkar.chatapp.R
 
 open class BaseFragment : Fragment() {
 
     var firebaseAnalytics: FirebaseAnalytics? = null
     private var firebaseCrashlytics: FirebaseCrashlytics? = null
-
 
     var cxt: Context? = null
     override fun onAttach(context: Context) {
